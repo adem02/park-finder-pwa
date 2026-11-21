@@ -7,7 +7,7 @@ export function RootLayout() {
   const isOnline = useOnlineStatus();
 
   return (
-    <>
+    <div className={styles.app} data-offline={!isOnline}>
       {!isOnline && (
         <p className={styles.offline} role="status">
           Hors ligne · consultation seule
@@ -15,7 +15,7 @@ export function RootLayout() {
       )}
       <Outlet />
       <UpdatePrompt />
-    </>
+    </div>
   );
 }
 

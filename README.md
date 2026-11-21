@@ -9,7 +9,7 @@ Remplace l'app Expo `park-finder-app`. L'API reste `park-finder-api` (NestJS).
 nvm use            # Node 22
 npm install
 cp .env.example .env
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5190
 ```
 
 Par défaut, l'app tourne en **mode démo** : les 91 parkings gratuits de Reims issus d'OpenStreetMap

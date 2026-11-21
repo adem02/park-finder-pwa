@@ -8,13 +8,42 @@ const fromSrc = (path: string): string =>
 
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
+// Ports propres à ParkFinder : une PWA a un service worker et des caches par origine.
+// Sur le 5173 par défaut, ils seraient partagés avec les autres projets Vite (ex. havre).
+const DEV_PORT = 5190;
+const PREVIEW_PORT = 4190;
+
 export default defineConfig({
+  server: { port: DEV_PORT, strictPort: true },
+  preview: { port: PREVIEW_PORT, strictPort: true },
+  build: {
+    rolldownOptions: {
+      output: {
+        // Bibliothèques lourdes dans leurs propres fichiers : mieux mises en cache entre deux versions.
+        codeSplitting: {
+          groups: [
+            { name: 'maplibre-vendor', test: /node_modules[\\/]maplibre-gl[\\/]/, priority: 30 },
+            { name: 'react-vendor', test: /node_modules[\\/](?:react|react-dom|scheduler)[\\/]/, priority: 20 },
+            { name: 'tanstack-vendor', test: /node_modules[\\/]@tanstack[\\/]/, priority: 20 },
+          ],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      // Mode PWA aussi en dev : manifest, service worker et installation sur http://localhost:5173.
+      // Le précache complet (hors ligne de toute l'app) ne se teste qu'avec `npm run preview:pwa`.
+      devOptions: {
+        enabled: true,
+        type: 'classic',
+      },
       manifest: {
+        id: '/',
+        scope: '/',
         name: 'ParkFinder',
         short_name: 'ParkFinder',
         description: 'Trouvez un parking gratuit près de vous.',
@@ -31,6 +60,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        cleanupOutdatedCaches: true,
+        navigateFallback: '/index.html',
         globPatterns: ['**/*.{js,mjs,css,html,svg,png,woff2}'],
         // Hors ligne en lecture seule (docs/decisions.md) : le service worker garde le shell,
         // les tuiles et les photos. Les données API passent par le cache TanStack Query.

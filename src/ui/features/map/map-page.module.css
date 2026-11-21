@@ -27,7 +27,7 @@
 /* Zone haute : barre de titre et bandeaux */
 .top {
   position: absolute;
-  top: calc(var(--safe-top) + var(--space-sm));
+  top: calc(var(--safe-top) + var(--offline-banner-height, 0px) + var(--space-sm));
   left: calc(var(--safe-left) + var(--space-sm));
   right: calc(var(--safe-right) + var(--space-sm));
   display: grid;

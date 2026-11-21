@@ -1,13 +1,25 @@
+.app {
+  height: 100%;
+}
+
+/* Les écrans décalent leurs éléments du haut de cette hauteur quand le bandeau est visible. */
+.app[data-offline='true'] {
+  --offline-banner-height: 24px;
+}
+
 .offline {
+  box-sizing: content-box;
+  height: var(--offline-banner-height);
   position: fixed;
   z-index: 20;
   top: 0;
   left: 0;
   right: 0;
   margin: 0;
-  padding: calc(var(--safe-top) + var(--space-xs)) var(--space-md) var(--space-xs);
+  padding: var(--safe-top) var(--space-md) 0;
   text-align: center;
   font: var(--text-badge);
+  line-height: var(--offline-banner-height);
   color: var(--color-surface);
   background: var(--color-text-primary);
 }
