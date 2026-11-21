@@ -1,0 +1,34 @@
+import { InvalidResponseError, type GatewayError } from '@application/errors/gateway.errors';
+import type { NearbyQuery, ParkingGateway } from '@application/ports/parking.gateway';
+import type { ParkingSummary } from '@domain/parking/parking-summary';
+import { err, ok, type Result } from '@domain/shared/result';
+import { findNearbyParkingsResponseDtoSchema } from './dto/find-nearby-parkings.dto';
+import { Endpoints } from './endpoints';
+import type { FetchHttpClient } from './fetch-http-client';
+import { ParkingSummaryMapper } from './mappers/parking-summary.mapper';
+
+export class HttpParkingGateway implements ParkingGateway {
+  constructor(private readonly http: FetchHttpClient) {}
+
+  async findNearby(
+    { center, radius }: NearbyQuery,
+    signal?: AbortSignal,
+  ): Promise<Result<ParkingSummary[], GatewayError>> {
+    const response = await this.http.getJson(Endpoints.parkings.nearby, {
+      query: { lat: center.latitude, lng: center.longitude, radius: radius.meters },
+      signal,
+    });
+    if (!response.ok) return response;
+
+    const parsed = findNearbyParkingsResponseDtoSchema.safeParse(response.value);
+    if (!parsed.success) return err(new InvalidResponseError(parsed.error.message));
+
+    const parkings: ParkingSummary[] = [];
+    for (const dto of parsed.data.parkings) {
+      const parking = ParkingSummaryMapper.toDomain(dto);
+      if (!parking.ok) return parking;
+      parkings.push(parking.value);
+    }
+    return ok(parkings);
+  }
+}

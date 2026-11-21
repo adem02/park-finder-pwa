@@ -1,0 +1,171 @@
+.page {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Attribution et contrôles MapLibre : toujours au-dessus du panneau du bas (légende ou fiche). */
+.page :global(.maplibregl-ctrl-bottom-left),
+.page :global(.maplibregl-ctrl-bottom-right) {
+  bottom: var(--bottom-panel-height, 0px);
+}
+
+.splash {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-md);
+  color: var(--color-text-secondary);
+}
+
+.splashIcon {
+  color: var(--color-primary);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* Zone haute : barre de titre et bandeaux */
+.top {
+  position: absolute;
+  top: calc(var(--safe-top) + var(--space-sm));
+  left: calc(var(--safe-left) + var(--space-sm));
+  right: calc(var(--safe-right) + var(--space-sm));
+  display: grid;
+  gap: var(--space-sm);
+  pointer-events: none;
+}
+
+.top > * {
+  pointer-events: auto;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-floating);
+}
+
+.title {
+  margin: 0;
+  font: var(--text-card-title);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.count {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo {
+  font: var(--text-badge);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px var(--space-sm);
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface));
+}
+
+.banner {
+  margin: 0;
+  padding: 10px var(--space-md);
+  border-radius: var(--radius-md);
+  font: var(--text-caption);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-floating);
+}
+
+.bannerError {
+  color: var(--color-danger);
+}
+
+.retry {
+  border: 0;
+  padding: 0;
+  background: none;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Zone basse : bouton de localisation et légende ou fiche */
+.bottom {
+  position: absolute;
+  left: var(--safe-left);
+  right: var(--safe-right);
+  bottom: 0;
+  display: grid;
+  gap: var(--space-sm);
+  pointer-events: none;
+}
+
+.bottom > * {
+  pointer-events: auto;
+}
+
+.locate {
+  justify-self: end;
+  margin-right: var(--space-md);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs) var(--space-md);
+  margin: 0 var(--space-sm) calc(var(--safe-bottom) + var(--space-sm));
+  padding: var(--space-sm) var(--space-md);
+  list-style: none;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-floating);
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+.recent {
+  background: var(--color-success);
+}
+
+.stale {
+  background: var(--color-warning);
+}
+
+.full {
+  background: var(--color-danger);
+}
+
+.unknown {
+  background: var(--color-muted);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+  }
+}

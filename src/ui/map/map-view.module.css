@@ -1,0 +1,13 @@
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+.userDot {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 0 0 6px rgb(59 130 246 / 0.25);
+}
