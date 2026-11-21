@@ -1,7 +1,12 @@
-import type { Author } from '@domain/user/author';
 import styles from './avatar.module.css';
 
-export function Avatar({ author, size = 32 }: { author: Author; size?: number }) {
+/** Tout utilisateur affichable : auteur d'un contenu ou utilisateur connecté. */
+interface AvatarPerson {
+  readonly photoUrl: string | null;
+  readonly initial: string;
+}
+
+export function Avatar({ author, size = 32 }: { author: AvatarPerson; size?: number }) {
   const style = { width: size, height: size, fontSize: size * 0.42 };
 
   return author.photoUrl ? (

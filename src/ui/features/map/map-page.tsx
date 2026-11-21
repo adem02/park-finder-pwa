@@ -1,13 +1,15 @@
-import { useMemo, useRef, useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { Suspense, useMemo, useRef, useState } from 'react';
 import type { CoordinatesSnapshot } from '@domain/geo/coordinates';
 import type { ParkingId } from '@domain/parking/parking-summary';
 import { useContainer } from '../../app/container-context';
 import { IconButton } from '../../components/icon-button';
-import { LocateIcon } from '../../components/icons';
+import { LocateIcon, PlusIcon } from '../../components/icons';
 import { useDebouncedValue } from '../../hooks/use-debounced-value';
 import { useHeightCssVariable } from '../../hooks/use-height-css-variable';
 import { useNow } from '../../hooks/use-now';
-import { MapView, type MapViewHandle } from '../../map/map-view';
+import { LazyMapView as MapView } from '../../map/lazy-map-view';
+import type { MapViewHandle } from '../../map/map-view';
 import { ParkingFeaturePresenter } from '../../map/parking-feature.presenter';
 import { locationFallbackMessage } from '../location/messages';
 import { useUserLocation } from '../location/use-user-location';
@@ -34,10 +36,7 @@ export function MapPage({ filters, onFiltersChange }: SearchPageProps) {
   const bottomPanelRef = useHeightCssVariable<HTMLDivElement>('--bottom-panel-height');
   const now = useNow();
 
-  const userPosition = useMemo(
-    () => location.data?.position.toSnapshot() ?? null,
-    [location.data],
-  );
+  const userPosition = useMemo(() => location.data?.position.toSnapshot() ?? null, [location.data]);
   const parkings = useNearbyParkings(debouncedCenter ?? userPosition, filters);
 
   const pins = useMemo(
@@ -64,14 +63,16 @@ export function MapPage({ filters, onFiltersChange }: SearchPageProps) {
 
   return (
     <main className={styles.page}>
-      <MapView
-        ref={mapRef}
-        initialCenter={userPosition}
-        pins={pins}
-        userPosition={location.data.source === 'device' ? userPosition : null}
-        onMoveEnd={setMapCenter}
-        onPinSelect={setSelectedId}
-      />
+      <Suspense fallback={<div className={styles.mapPlaceholder} aria-hidden="true" />}>
+        <MapView
+          ref={mapRef}
+          initialCenter={userPosition}
+          pins={pins}
+          userPosition={location.data.source === 'device' ? userPosition : null}
+          onMoveEnd={setMapCenter}
+          onPinSelect={setSelectedId}
+        />
+      </Suspense>
 
       <div className={styles.top}>
         <header className={styles.topBar}>
@@ -104,14 +105,23 @@ export function MapPage({ filters, onFiltersChange }: SearchPageProps) {
       </div>
 
       <div ref={bottomPanelRef} className={styles.bottom}>
-        <IconButton
-          label="Me localiser"
-          className={styles.locate}
-          onClick={() => void recenter()}
-          disabled={location.isFetching}
-        >
-          <LocateIcon />
-        </IconButton>
+        <div className={styles.actions}>
+          <Link
+            to="/add"
+            className={styles.fab}
+            aria-label="Ajouter un parking"
+            title="Ajouter un parking"
+          >
+            <PlusIcon width={26} height={26} />
+          </Link>
+          <IconButton
+            label="Me localiser"
+            onClick={() => void recenter()}
+            disabled={location.isFetching}
+          >
+            <LocateIcon />
+          </IconButton>
+        </div>
 
         {selected ? (
           <ParkingPreviewCard parking={selected} now={now} onClose={() => setSelectedId(null)} />

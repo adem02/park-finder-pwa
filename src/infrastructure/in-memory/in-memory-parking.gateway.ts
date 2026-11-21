@@ -1,12 +1,14 @@
 import { NotFoundError, type GatewayError } from '@application/errors/gateway.errors';
 import type { Clock } from '@application/ports/clock.port';
 import type { NearbyQuery, ParkingGateway } from '@application/ports/parking.gateway';
+import type { PreparedPhoto } from '@application/ports/photo-processor.port';
 import { Availability } from '@domain/availability/availability';
 import type { SpotCount } from '@domain/availability/spot-count';
+import { DUPLICATE_PARKING_RADIUS_METERS, type NewParking } from '@domain/parking/new-parking';
 import type { ParkingDetails } from '@domain/parking/parking-details';
 import type { ParkingId, ParkingSummary } from '@domain/parking/parking-summary';
 import { err, ok, type Result } from '@domain/shared/result';
-import { InMemoryParkingStore } from './in-memory-parking.store';
+import { DEMO_USER, InMemoryParkingStore } from './in-memory-parking.store';
 
 /** Gateway en mémoire : tests et mode démo. Mêmes règles que l'API : les N plus proches, puis filtres et tri. */
 export class InMemoryParkingGateway implements ParkingGateway {
@@ -40,6 +42,33 @@ export class InMemoryParkingGateway implements ParkingGateway {
     if (!this.store.find(id)) return Promise.resolve(err(new NotFoundError()));
 
     this.store.update(id, { availability: Availability.reported(spots.value, this.clock.now()) });
+    this.store.recordReport();
     return Promise.resolve(ok(undefined));
+  }
+
+  add(parking: NewParking, photos: readonly PreparedPhoto[]): Promise<Result<ParkingId, GatewayError>> {
+    const tooClose = this.store
+      .all()
+      .some((record) => parking.coordinates.distanceTo(record.coordinates) <= DUPLICATE_PARKING_RADIUS_METERS);
+    // Comme l'API, qui répond 404 dans ce cas.
+    if (tooClose) return Promise.resolve(err(new NotFoundError()));
+
+    const id = `added-${this.store.all().length + 1}-${this.clock.now().getTime()}`;
+    this.store.insert({
+      id,
+      name: parking.name,
+      totalSpots: parking.totalSpots,
+      // En démo, les aperçus locaux tiennent lieu de photos hébergées.
+      photos: photos.map((photo) => photo.previewUrl),
+      coordinates: parking.coordinates,
+      addedBy: DEMO_USER,
+      availability: Availability.none(),
+      upvotes: 0,
+      downvotes: 0,
+      userVote: null,
+      comments: [],
+      createdAt: this.clock.now(),
+    });
+    return Promise.resolve(ok(id));
   }
 }

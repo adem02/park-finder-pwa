@@ -12,3 +12,13 @@ export const parkingKeys = {
 export const locationKeys = {
   current: ['location', 'current'] as const,
 };
+
+export const sessionKeys = {
+  current: ['session'] as const,
+};
+
+export const profileKeys = {
+  all: ['profile'] as const,
+  me: () => [...profileKeys.all, 'me'] as const,
+  leaderboard: (month: string) => [...profileKeys.all, 'leaderboard', month] as const,
+};
