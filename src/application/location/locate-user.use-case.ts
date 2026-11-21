@@ -1,5 +1,5 @@
 import type { Coordinates } from '@domain/geo/coordinates';
-import { PILOT_CITY_CENTER } from '@domain/geo/pilot-city';
+import { DEFAULT_MAP_CENTER } from '@domain/geo/default-map-center';
 import type { GeolocationError, GeolocationPort } from '../ports/geolocation.port';
 
 export type UserLocation =
@@ -12,7 +12,7 @@ export type UserLocation =
 
 /**
  * Position de l'utilisateur. N'échoue jamais : sans localisation,
- * on centre sur la ville pilote et on dit pourquoi.
+ * on se replie sur le centre par défaut (Paris) et on dit pourquoi.
  */
 export class LocateUser {
   constructor(private readonly geolocation: GeolocationPort) {}
@@ -22,6 +22,6 @@ export class LocateUser {
 
     return result.ok
       ? { source: 'device', position: result.value }
-      : { source: 'fallback', position: PILOT_CITY_CENTER, reason: result.error.reason };
+      : { source: 'fallback', position: DEFAULT_MAP_CENTER, reason: result.error.reason };
   }
 }

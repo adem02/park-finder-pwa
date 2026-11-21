@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { Coordinates } from '@domain/geo/coordinates';
 import { SearchRadius } from '@domain/geo/search-radius';
 import { InMemoryParkingGateway } from '@infrastructure/in-memory/in-memory-parking.gateway';
-import { createReimsDemoParkings } from '@infrastructure/in-memory/reims-demo-parkings';
-import { PILOT_CITY_CENTER } from '@domain/geo/pilot-city';
+import {
+  REIMS_DEMO_POSITION,
+  createReimsDemoParkings,
+} from '@infrastructure/in-memory/reims-demo-parkings';
 import { NOW, aParking } from '../../support/parking.builder';
 
 const at = (latitude: number, longitude: number) => Coordinates.fromSnapshot({ latitude, longitude });
@@ -49,7 +51,7 @@ describe('InMemoryParkingGateway', () => {
   it('trouve des parkings de démo autour du centre de Reims', async () => {
     const gateway = new InMemoryParkingGateway(createReimsDemoParkings(NOW));
 
-    const result = await gateway.findNearby({ center: PILOT_CITY_CENTER, radius: SearchRadius.DEFAULT });
+    const result = await gateway.findNearby({ center: REIMS_DEMO_POSITION, radius: SearchRadius.DEFAULT });
 
     expect(result.ok && result.value.length).toBeGreaterThan(0);
   });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LocateUser } from '@application/location/locate-user.use-case';
 import { Coordinates } from '@domain/geo/coordinates';
-import { PILOT_CITY_CENTER } from '@domain/geo/pilot-city';
+import { DEFAULT_MAP_CENTER } from '@domain/geo/default-map-center';
 import { FakeGeolocation } from '@infrastructure/in-memory/fake-geolocation';
 
 describe('LocateUser', () => {
@@ -14,11 +14,11 @@ describe('LocateUser', () => {
   });
 
   it.each(['denied', 'unavailable', 'timeout', 'unsupported'] as const)(
-    'se replie sur Reims si la localisation est « %s »',
+    'se replie sur Paris si la localisation est « %s »',
     async (reason) => {
       const location = await new LocateUser(FakeGeolocation.failing(reason)).execute();
 
-      expect(location).toEqual({ source: 'fallback', position: PILOT_CITY_CENTER, reason });
+      expect(location).toEqual({ source: 'fallback', position: DEFAULT_MAP_CENTER, reason });
     },
   );
 });

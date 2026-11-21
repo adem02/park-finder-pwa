@@ -18,6 +18,9 @@ interface DemoParkingSeed {
 
 const SEED_DATE = new Date('2026-07-30T00:00:00Z');
 
+/** Position simulée de l'utilisateur en démo : le centre de Reims, où se trouvent les parkings. */
+export const REIMS_DEMO_POSITION = Coordinates.fromSnapshot({ latitude: 49.2583, longitude: 4.0317 });
+
 const minutesBefore = (now: Date, minutes: number): Date =>
   new Date(now.getTime() - minutes * 60_000);
 
