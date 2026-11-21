@@ -1,0 +1,26 @@
+.splash {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.logo {
+  color: var(--color-primary);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.message {
+  margin: 0;
+  max-width: 32ch;
+  color: var(--color-text-secondary);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+  }
+}

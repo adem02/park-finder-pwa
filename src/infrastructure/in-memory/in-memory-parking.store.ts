@@ -30,6 +30,8 @@ export interface DemoParkingRecord {
 /** État partagé des gateways en mémoire (démo, tests). Seule pièce mutable de l'app. */
 export class InMemoryParkingStore {
   private readonly records = new Map<ParkingId, DemoParkingRecord>();
+  /** Signalements faits par DEMO_USER (pour son profil). */
+  private reports = 0;
 
   constructor(records: readonly DemoParkingRecord[]) {
     for (const record of records) this.records.set(record.id, record);
@@ -61,6 +63,18 @@ export class InMemoryParkingStore {
 
   find(id: ParkingId): DemoParkingRecord | undefined {
     return this.records.get(id);
+  }
+
+  recordReport(): void {
+    this.reports += 1;
+  }
+
+  get reportsCount(): number {
+    return this.reports;
+  }
+
+  insert(record: DemoParkingRecord): void {
+    this.records.set(record.id, record);
   }
 
   update(id: ParkingId, changes: Partial<Omit<DemoParkingRecord, 'id'>>): void {

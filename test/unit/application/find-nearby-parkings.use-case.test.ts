@@ -14,6 +14,7 @@ const gatewayReturning = (result: Awaited<ReturnType<ParkingGateway['findNearby'
     findNearby,
     getDetails: vi.fn<ParkingGateway['getDetails']>(),
     reportAvailability: vi.fn<ParkingGateway['reportAvailability']>(),
+    add: vi.fn<ParkingGateway['add']>(),
   };
   return { gateway, findNearby };
 };

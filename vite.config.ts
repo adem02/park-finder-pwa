@@ -40,6 +40,9 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'classic',
+        // En dev, dev-dist/ ne contient que le service worker : le motif de précache ne trouve
+        // rien et Workbox l'avertit à chaque démarrage. Faux positif, le précache réel est au build.
+        suppressWarnings: true,
       },
       manifest: {
         id: '/',

@@ -3,7 +3,7 @@ import type { ParkingDetails, ParkingDetailsSnapshot } from '@domain/parking/par
 import type { VoteType } from '@domain/vote/parking-votes';
 import { useUseCases } from '../../app/container-context';
 import { useToast } from '../../components/toast';
-import { parkingKeys } from '../../query/query-keys';
+import { parkingKeys, profileKeys } from '../../query/query-keys';
 import { unwrap } from '../../query/unwrap';
 
 interface ToggleVoteVariables {
@@ -43,6 +43,8 @@ export function useToggleVote() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: parkingKeys.detail(parking.id) }),
         queryClient.invalidateQueries({ queryKey: parkingKeys.nearbyAll() }),
+        // Un vote rapporte 1 point : le profil et le classement changent.
+        queryClient.invalidateQueries({ queryKey: profileKeys.all }),
       ]),
   });
 }
