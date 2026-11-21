@@ -1,4 +1,8 @@
-import { EmailAlreadyUsedError, WrongCredentialsError } from '@application/auth/auth.errors';
+import {
+  EmailAlreadyUsedError,
+  UsernameAlreadyTakenError,
+  WrongCredentialsError,
+} from '@application/auth/auth.errors';
 import { NetworkError } from '@application/errors/gateway.errors';
 import {
   InvalidCredentialsInputError,
@@ -43,13 +47,22 @@ export function fieldErrors(error: Error | null): FieldErrors {
   if (error instanceof EmailAlreadyUsedError) {
     return { email: 'Un compte existe déjà avec cet email. Connectez-vous plutôt.' };
   }
+  if (error instanceof UsernameAlreadyTakenError) {
+    return { username: 'Ce nom d’utilisateur est déjà pris. Choisissez-en un autre.' };
+  }
   return {};
 }
 
 /** Erreur générale du formulaire (affichée au-dessus du bouton), ou `null` si elle concerne un champ. */
 export function formError(error: Error | null): string | null {
   if (!error) return null;
-  if (error instanceof InvalidCredentialsInputError || error instanceof EmailAlreadyUsedError) return null;
+  if (
+    error instanceof InvalidCredentialsInputError ||
+    error instanceof EmailAlreadyUsedError ||
+    error instanceof UsernameAlreadyTakenError
+  ) {
+    return null;
+  }
   if (error instanceof WrongCredentialsError) return 'Email ou mot de passe incorrect.';
   if (error instanceof NetworkError) {
     return error.reason === 'offline'

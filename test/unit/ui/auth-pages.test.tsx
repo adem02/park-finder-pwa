@@ -84,6 +84,17 @@ describe('RegisterPage', () => {
     expect(await screen.findByText(/Un compte existe déjà avec cet email/)).toBeInTheDocument();
   });
 
+  it('indique sous le champ pseudo qu’il est déjà pris', async () => {
+    renderSignedOut(<RegisterPage />);
+
+    await type('Nom d’utilisateur', 'Vous');
+    await type('Email', 'nouveau@parkfinder.app');
+    await type('Mot de passe', 'Secret1!');
+    fireEvent.click(screen.getByRole('button', { name: 'Créer mon compte' }));
+
+    expect(await screen.findByText(/Ce nom d’utilisateur est déjà pris/)).toBeInTheDocument();
+  });
+
   it('crée le compte et ouvre la session', async () => {
     const { queryClient } = renderSignedOut(<RegisterPage />);
 

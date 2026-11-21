@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { NotFoundError } from '@application/errors/gateway.errors';
+import { ConflictError } from '@application/errors/gateway.errors';
 import { NewParking } from '@domain/parking/new-parking';
 import { FetchHttpClient } from '@infrastructure/http/fetch-http-client';
 import { HttpParkingGateway } from '@infrastructure/http/http-parking.gateway';
@@ -44,13 +44,23 @@ describe('HttpParkingGateway.add', () => {
     expect((form.getAll('photos')[0] as File).name).toBe('entree.jpg');
   });
 
-  it('remonte le 404 « parking déjà existant » de l’API', async () => {
-    const fetchFn = vi
-      .fn<typeof fetch>()
-      .mockResolvedValue(new Response(JSON.stringify({ message: 'A parking already exists' }), { status: 404 }));
+  it('remonte la 409 « parking déjà existant » avec le code de l’API', async () => {
+    const fetchFn = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          statusCode: 409,
+          message: 'A parking already exists near the provided coordinates.',
+          error: 'ParkingAlreadyExistsException',
+        }),
+        { status: 409 },
+      ),
+    );
 
     const result = await gatewayWith(fetchFn).add(newParking(), []);
 
-    expect(!result.ok && result.error).toBeInstanceOf(NotFoundError);
+    expect(!result.ok && result.error).toBeInstanceOf(ConflictError);
+    expect(!result.ok && result.error instanceof ConflictError && result.error.code).toBe(
+      'ParkingAlreadyExistsException',
+    );
   });
 });

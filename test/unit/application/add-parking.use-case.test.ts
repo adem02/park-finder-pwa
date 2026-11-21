@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { AddParking, DuplicateParkingError } from '@application/parking/add-parking.use-case';
 import { FindNearbyParkings } from '@application/parking/find-nearby-parkings.use-case';
+import { NotFoundError } from '@application/errors/gateway.errors';
 import type { ParkingGateway } from '@application/ports/parking.gateway';
+import { err } from '@domain/shared/result';
 import type { PreparedPhoto } from '@application/ports/photo-processor.port';
 import { InvalidNewParkingError } from '@domain/parking/new-parking';
 import { InMemoryParkingGateway } from '@infrastructure/in-memory/in-memory-parking.gateway';
@@ -50,6 +52,19 @@ describe('AddParking', () => {
       totalSpots: 10,
       latitude: ERLON.latitude + 0.0002,
       longitude: ERLON.longitude,
+      photos: [],
+    });
+
+    expect(!result.ok && result.error).toBeInstanceOf(DuplicateParkingError);
+  });
+
+  it('comprend encore la 404 des versions de l’API antérieures à la 409', async () => {
+    const gateway = { add: vi.fn<ParkingGateway['add']>().mockResolvedValue(err(new NotFoundError())) };
+
+    const result = await new AddParking(gateway as unknown as ParkingGateway).execute({
+      name: 'Parking de la gare',
+      totalSpots: 25,
+      ...elsewhere,
       photos: [],
     });
 

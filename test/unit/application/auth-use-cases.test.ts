@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { EmailAlreadyUsedError, WrongCredentialsError } from '@application/auth/auth.errors';
+import {
+  EmailAlreadyUsedError,
+  UsernameAlreadyTakenError,
+  WrongCredentialsError,
+} from '@application/auth/auth.errors';
 import { Login } from '@application/auth/login.use-case';
 import { Logout } from '@application/auth/logout.use-case';
 import { Register } from '@application/auth/register.use-case';
@@ -61,6 +65,18 @@ describe('Register', () => {
     });
 
     expect(!result.ok && result.error).toBeInstanceOf(EmailAlreadyUsedError);
+  });
+});
+
+describe('Register : pseudo déjà pris', () => {
+  it('traduit la 409 UsernameAlreadyTakenException en UsernameAlreadyTakenError', async () => {
+    const result = await new Register(signedOut()).execute({
+      email: 'autre@parkfinder.app',
+      username: 'vous',
+      password: 'Secret1!',
+    });
+
+    expect(!result.ok && result.error).toBeInstanceOf(UsernameAlreadyTakenError);
   });
 });
 
