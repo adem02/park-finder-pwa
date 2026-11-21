@@ -15,11 +15,20 @@ export class HttpParkingGateway implements ParkingGateway {
   constructor(private readonly http: FetchHttpClient) {}
 
   async findNearby(
-    { center, radius }: NearbyQuery,
+    { center, filters }: NearbyQuery,
     signal?: AbortSignal,
   ): Promise<Result<ParkingSummary[], GatewayError>> {
     const response = await this.http.getJson(Endpoints.parkings.nearby, {
-      query: { lat: center.latitude, lng: center.longitude, radius: radius.meters },
+      query: {
+        lat: center.latitude,
+        lng: center.longitude,
+        radius: filters.radius.meters,
+        // Critères par défaut omis : l'URL reste courte et l'API applique les mêmes défauts.
+        minSpots: filters.minSpots > 0 ? filters.minSpots : undefined,
+        availableOnly: filters.availableOnly || undefined,
+        verifiedOnly: filters.verifiedOnly || undefined,
+        sort: filters.sort,
+      },
       signal,
     });
     if (!response.ok) return response;

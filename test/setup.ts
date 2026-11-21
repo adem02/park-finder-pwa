@@ -10,3 +10,8 @@ if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.sho
     this.dispatchEvent(new Event('close'));
   };
 }
+
+// jsdom n'implémente pas le défilement : la restauration de scroll du routeur l'appelle à chaque navigation.
+if (typeof window !== 'undefined') {
+  window.scrollTo = () => undefined;
+}

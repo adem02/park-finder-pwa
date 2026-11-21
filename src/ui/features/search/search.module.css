@@ -1,0 +1,307 @@
+/* ---------- Bouton « Filtres » ---------- */
+.filtersButton {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.filtersButton:active {
+  transform: scale(0.94);
+}
+
+.filtersCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  font: var(--text-badge);
+  line-height: 18px;
+  text-align: center;
+  color: var(--color-surface);
+  background: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+
+/* ---------- Pastilles des filtres actifs ---------- */
+.activeChips {
+  justify-self: start;
+  max-width: 100%;
+  display: flex;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.activeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-radius: var(--radius-full);
+  font: var(--text-caption);
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  cursor: pointer;
+}
+
+/* ---------- Panneau « Filtres » ---------- */
+.filtersForm {
+  display: grid;
+  gap: var(--space-lg);
+  overflow-y: auto;
+}
+
+.switches {
+  display: grid;
+  gap: var(--space-xs);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.filtersActions {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: var(--space-sm);
+}
+
+/* ---------- Page liste ---------- */
+.listPage {
+  min-height: 100%;
+  padding-bottom: calc(var(--tab-bar-total, 0px) + var(--space-lg));
+  background: var(--color-background);
+}
+
+.listHeader {
+  position: sticky;
+  z-index: 5;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: calc(var(--safe-top) + var(--offline-banner-height, 0px) + var(--space-md))
+    calc(var(--safe-right) + var(--space-md)) var(--space-sm) calc(var(--safe-left) + var(--space-md));
+  background: color-mix(in srgb, var(--color-background) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.listTitles {
+  flex: 1;
+  min-width: 0;
+}
+
+.listTitle {
+  margin: 0;
+  font: var(--text-page-title);
+}
+
+.listCount {
+  margin: 2px 0 0;
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.demo {
+  flex: none;
+  font: var(--text-badge);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px var(--space-sm);
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface));
+}
+
+.listBody {
+  display: grid;
+  gap: var(--space-sm);
+  padding: 0 calc(var(--safe-right) + var(--space-md)) 0 calc(var(--safe-left) + var(--space-md));
+}
+
+.banner {
+  margin: 0;
+  padding: 10px var(--space-md);
+  border-radius: var(--radius-md);
+  font: var(--text-caption);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.bannerError {
+  color: var(--color-danger);
+}
+
+.retry {
+  border: 0;
+  padding: 0;
+  background: none;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.results {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 150ms ease;
+}
+
+.results[data-stale] {
+  opacity: 0.55;
+}
+
+.skeleton {
+  height: 96px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--color-border) 0%, var(--color-surface) 50%, var(--color-border) 100%)
+    0 0 / 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+  opacity: 0.6;
+}
+
+/* ---------- Ligne de résultat ---------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm);
+  padding-right: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 1px 2px rgb(17 24 39 / 0.06);
+  color: inherit;
+  text-decoration: none;
+}
+
+.row:active {
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface));
+}
+
+.thumb {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  background: var(--color-background);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rowBody {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+
+.rowName {
+  max-width: 100%;
+  font: var(--text-card-title);
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.rowVerified,
+.rowScore {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.rowVerified {
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.rowChevron {
+  flex: none;
+  color: var(--color-muted);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- État vide ---------- */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--color-muted);
+}
+
+.emptyTitle {
+  margin: 0;
+  font: var(--text-section-title);
+}
+
+.emptyText {
+  margin: 0;
+  max-width: 32ch;
+  color: var(--color-text-secondary);
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}

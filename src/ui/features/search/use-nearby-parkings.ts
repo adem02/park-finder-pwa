@@ -1,6 +1,7 @@
 import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 import type { CoordinatesSnapshot } from '@domain/geo/coordinates';
 import { ParkingSummary, type ParkingSummarySnapshot } from '@domain/parking/parking-summary';
+import type { ParkingFilters } from '@domain/search/parking-filters';
 import { useUseCases } from '../../app/container-context';
 import { parkingKeys } from '../../query/query-keys';
 import { unwrap } from '../../query/unwrap';
@@ -12,17 +13,19 @@ const roundCoordinate = (value: number): number => Math.round(value * 1000) / 10
 const toParkings = (snapshots: readonly ParkingSummarySnapshot[]): ParkingSummary[] =>
   snapshots.map((snapshot) => ParkingSummary.fromSnapshot(snapshot));
 
-export function useNearbyParkings(center: CoordinatesSnapshot | null, radiusMeters?: number) {
+/** Parkings autour de `center` selon les filtres. Partagé par la carte et la liste (même cache). */
+export function useNearbyParkings(center: CoordinatesSnapshot | null, filters: ParkingFilters) {
   const { findNearbyParkings } = useUseCases();
   const latitude = center ? roundCoordinate(center.latitude) : Number.NaN;
   const longitude = center ? roundCoordinate(center.longitude) : Number.NaN;
+  const criteria = filters.toSnapshot();
 
   return useQuery({
-    queryKey: parkingKeys.nearby(latitude, longitude, radiusMeters),
+    queryKey: parkingKeys.nearby(latitude, longitude, criteria),
     queryFn: center
       ? async ({ signal }) => {
           const parkings = await unwrap(
-            findNearbyParkings.execute({ latitude, longitude, radiusMeters }, signal),
+            findNearbyParkings.execute({ latitude, longitude, filters: criteria }, signal),
           );
           return parkings.map((parking) => parking.toSnapshot());
         }

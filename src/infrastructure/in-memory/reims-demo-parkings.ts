@@ -37,6 +37,8 @@ const DEMO_COMMENTS = [
 const minutesBefore = (now: Date, minutes: number): Date =>
   new Date(now.getTime() - minutes * 60_000);
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const pick = <T>(items: readonly T[], index: number): T => items[index % items.length] as T;
 
 /** Répartit les 4 états de pin pour que la démo les montre tous. */
@@ -78,11 +80,12 @@ export const createReimsDemoStore = (now: Date): InMemoryParkingStore =>
         coordinates: Coordinates.fromSnapshot(parking),
         addedBy: pick(DEMO_CONTRIBUTORS, index),
         availability: demoAvailability(index, parking.totalSpots, now),
-        upvotes: index % 3 === 0 ? 14 : index % 4,
-        downvotes: index % 3 === 0 ? 1 : 0,
+        // Scores et dates variés : les tris « popularité » et « ajoutés récemment » donnent des ordres distincts.
+        upvotes: index % 3 === 0 ? 12 + ((index * 7) % 30) : index % 4,
+        downvotes: index % 2,
         userVote: null,
         comments: demoComments(index, now),
-        createdAt: SEED_DATE,
+        createdAt: new Date(SEED_DATE.getTime() - ((index * 13) % 120) * DAY_MS),
       }),
     ),
   );

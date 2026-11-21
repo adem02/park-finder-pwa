@@ -46,4 +46,10 @@ export class SearchRadius {
   contains(distanceMeters: number): boolean {
     return distanceMeters <= this.meters;
   }
+
+  /** Rayon autorisé immédiatement supérieur, ou `null` pour le plus grand. */
+  next(): SearchRadius | null {
+    const wider = SEARCH_RADIUS_VALUES.find((meters) => meters > this.meters);
+    return wider === undefined ? null : new SearchRadius(wider);
+  }
 }

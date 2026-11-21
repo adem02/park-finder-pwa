@@ -6,7 +6,7 @@ import {
   UnauthorizedError,
 } from '@application/errors/gateway.errors';
 import { Coordinates } from '@domain/geo/coordinates';
-import { SearchRadius } from '@domain/geo/search-radius';
+import { ParkingFilters } from '@domain/search/parking-filters';
 import { FetchHttpClient } from '@infrastructure/http/fetch-http-client';
 import { HttpParkingGateway } from '@infrastructure/http/http-parking.gateway';
 import { NOW, minutesAgo } from '../../support/parking.builder';
@@ -43,18 +43,43 @@ const createGateway = (fetchFn: typeof fetch, token: string | null = null) =>
 
 const query = {
   center: Coordinates.fromSnapshot({ latitude: 49.25, longitude: 4.03 }),
-  radius: SearchRadius.DEFAULT,
+  filters: ParkingFilters.DEFAULT,
 };
 
 describe('HttpParkingGateway.findNearby', () => {
-  it('appelle GET /parkings avec lat, lng et radius', async () => {
+  it('appelle GET /parkings avec lat, lng, radius et sort, sans les critères par défaut', async () => {
     const fetchFn = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ parkings: [] }));
 
     await createGateway(fetchFn).findNearby(query);
 
     const [url, init] = fetchFn.mock.calls[0] ?? [];
-    expect(url).toBe('https://api.parkfinder.test/parkings?lat=49.25&lng=4.03&radius=2000');
+    expect(url).toBe('https://api.parkfinder.test/parkings?lat=49.25&lng=4.03&radius=2000&sort=distance');
     expect(init?.method).toBe('GET');
+  });
+
+  it('envoie les critères actifs dans le format attendu par l’API', async () => {
+    const fetchFn = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ parkings: [] }));
+    const filters = ParkingFilters.create({
+      radiusMeters: 5000,
+      minSpots: 20,
+      availableOnly: true,
+      verifiedOnly: true,
+      sort: 'popularity',
+    });
+    if (!filters.ok) throw filters.error;
+
+    await createGateway(fetchFn).findNearby({ ...query, filters: filters.value });
+
+    const url = new URL(fetchFn.mock.calls[0]?.[0] as string);
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      lat: '49.25',
+      lng: '4.03',
+      radius: '5000',
+      minSpots: '20',
+      availableOnly: 'true',
+      verifiedOnly: 'true',
+      sort: 'popularity',
+    });
   });
 
   it('envoie le token d’accès quand il existe', async () => {

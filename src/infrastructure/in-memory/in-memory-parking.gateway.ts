@@ -8,15 +8,16 @@ import type { ParkingId, ParkingSummary } from '@domain/parking/parking-summary'
 import { err, ok, type Result } from '@domain/shared/result';
 import { InMemoryParkingStore } from './in-memory-parking.store';
 
-/** Gateway en mémoire : tests et mode démo. Mêmes règles que l'API (rayon, tri, limite). */
+/** Gateway en mémoire : tests et mode démo. Mêmes règles que l'API : les N plus proches, puis filtres et tri. */
 export class InMemoryParkingGateway implements ParkingGateway {
   constructor(
     private readonly store: InMemoryParkingStore,
     private readonly clock: Clock,
   ) {}
 
-  findNearby({ center, radius }: NearbyQuery): Promise<Result<ParkingSummary[], GatewayError>> {
-    const nearby = this.store
+  findNearby({ center, filters }: NearbyQuery): Promise<Result<ParkingSummary[], GatewayError>> {
+    const { radius } = filters;
+    const nearest = this.store
       .all()
       .map((record) =>
         InMemoryParkingStore.toSummary(record, center.distanceTo(record.coordinates)),
@@ -25,7 +26,7 @@ export class InMemoryParkingGateway implements ParkingGateway {
       .sort((a, b) => a.distanceMeters - b.distanceMeters)
       .slice(0, radius.maxResults);
 
-    return Promise.resolve(ok(nearby));
+    return Promise.resolve(ok(filters.apply(nearest, this.clock.now())));
   }
 
   getDetails(id: ParkingId): Promise<Result<ParkingDetails, GatewayError>> {

@@ -4,6 +4,7 @@ import { FindNearbyParkings } from '@application/parking/find-nearby-parkings.us
 import type { ParkingGateway } from '@application/ports/parking.gateway';
 import { InvalidCoordinatesError } from '@domain/geo/coordinates';
 import { InvalidSearchRadiusError } from '@domain/geo/search-radius';
+import { InvalidMinSpotsError } from '@domain/search/parking-filters';
 import { err, ok } from '@domain/shared/result';
 import { aParking } from '../../support/parking.builder';
 
@@ -26,7 +27,40 @@ describe('FindNearbyParkings', () => {
     expect(result.ok && result.value).toHaveLength(1);
     const [query] = findNearby.mock.calls[0] ?? [];
     expect(query?.center.toSnapshot()).toEqual({ latitude: 49.25, longitude: 4.03 });
-    expect(query?.radius.meters).toBe(2000);
+    expect(query?.filters.toSnapshot()).toEqual({
+      radiusMeters: 2000,
+      minSpots: 0,
+      availableOnly: false,
+      verifiedOnly: false,
+      sort: 'distance',
+    });
+  });
+
+  it('transmet les critères au gateway', async () => {
+    const { gateway, findNearby } = gatewayReturning(ok([]));
+
+    await new FindNearbyParkings(gateway).execute({
+      latitude: 49.25,
+      longitude: 4.03,
+      filters: { radiusMeters: 500, verifiedOnly: true, sort: 'recent' },
+    });
+
+    const [query] = findNearby.mock.calls[0] ?? [];
+    expect(query?.filters).toMatchObject({ minSpots: 0, verifiedOnly: true, sort: 'recent' });
+    expect(query?.filters.radius.meters).toBe(500);
+  });
+
+  it('refuse un nombre de places minimum négatif sans appeler le gateway', async () => {
+    const { gateway, findNearby } = gatewayReturning(ok([]));
+
+    const result = await new FindNearbyParkings(gateway).execute({
+      latitude: 49.25,
+      longitude: 4.03,
+      filters: { minSpots: -1 },
+    });
+
+    expect(!result.ok && result.error).toBeInstanceOf(InvalidMinSpotsError);
+    expect(findNearby).not.toHaveBeenCalled();
   });
 
   it('transmet le signal d’annulation au gateway', async () => {
@@ -34,7 +68,7 @@ describe('FindNearbyParkings', () => {
     const controller = new AbortController();
 
     await new FindNearbyParkings(gateway).execute(
-      { latitude: 49.25, longitude: 4.03, radiusMeters: 500 },
+      { latitude: 49.25, longitude: 4.03, filters: { radiusMeters: 500 } },
       controller.signal,
     );
 
@@ -56,7 +90,7 @@ describe('FindNearbyParkings', () => {
     const result = await new FindNearbyParkings(gateway).execute({
       latitude: 49.25,
       longitude: 4.03,
-      radiusMeters: 750,
+      filters: { radiusMeters: 750 },
     });
 
     expect(!result.ok && result.error).toBeInstanceOf(InvalidSearchRadiusError);

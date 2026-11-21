@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Coordinates } from '@domain/geo/coordinates';
-import { SearchRadius } from '@domain/geo/search-radius';
 import { Availability } from '@domain/availability/availability';
+import { ParkingScore } from '@domain/vote/parking-score';
 import { SpotCount } from '@domain/availability/spot-count';
 import { NotFoundError } from '@application/errors/gateway.errors';
 import { InMemoryParkingGateway } from '@infrastructure/in-memory/in-memory-parking.gateway';
@@ -11,7 +11,7 @@ import {
   createReimsDemoStore,
 } from '@infrastructure/in-memory/reims-demo-parkings';
 import { FixedClock } from '@infrastructure/time/system-clock';
-import { NOW, aComment, aParking, aRecord } from '../../support/parking.builder';
+import { NOW, aComment, aParking, aRecord, filtersWith, minutesAgo } from '../../support/parking.builder';
 
 const clock = new FixedClock(NOW);
 const gatewayWith = (parkings: Parameters<typeof InMemoryParkingStore.fromSummaries>[0]) =>
@@ -19,11 +19,6 @@ const gatewayWith = (parkings: Parameters<typeof InMemoryParkingStore.fromSummar
 
 const at = (latitude: number, longitude: number) => Coordinates.fromSnapshot({ latitude, longitude });
 
-const radius = (meters: number) => {
-  const result = SearchRadius.create(meters);
-  if (!result.ok) throw result.error;
-  return result.value;
-};
 
 describe('InMemoryParkingGateway', () => {
   const center = at(49.25, 4.03);
@@ -34,7 +29,7 @@ describe('InMemoryParkingGateway', () => {
   it('ne garde que les parkings dans le rayon, du plus proche au plus loin', async () => {
     const gateway = gatewayWith([far, middle, near]);
 
-    const result = await gateway.findNearby({ center, radius: radius(500) });
+    const result = await gateway.findNearby({ center, filters: filtersWith({ radiusMeters: 500 }) });
 
     expect(result.ok && result.value.map((p) => p.id)).toEqual(['near', 'middle']);
   });
@@ -42,7 +37,7 @@ describe('InMemoryParkingGateway', () => {
   it('calcule la distance depuis le centre de recherche', async () => {
     const gateway = gatewayWith([near]);
 
-    const result = await gateway.findNearby({ center, radius: radius(500) });
+    const result = await gateway.findNearby({ center, filters: filtersWith({ radiusMeters: 500 }) });
 
     expect(result.ok && Math.round(result.value[0]?.distanceMeters ?? 0)).toBe(56);
   });
@@ -52,15 +47,41 @@ describe('InMemoryParkingGateway', () => {
       aParking({ id: `p-${index}`, coordinates: at(49.25 + index * 0.0001, 4.03) }),
     );
 
-    const result = await gatewayWith(many).findNearby({ center, radius: radius(500) });
+    const result = await gatewayWith(many).findNearby({ center, filters: filtersWith({ radiusMeters: 500 }) });
 
     expect(result.ok && result.value).toHaveLength(10);
+  });
+
+  it('filtre parmi les plus proches, puis trie, comme l’API', async () => {
+    const small = aParking({ id: 'small', totalSpots: 4, coordinates: at(49.2501, 4.03) });
+    const unknown = aParking({ id: 'unknown', totalSpots: 40, coordinates: at(49.2502, 4.03) });
+    const free = aParking({
+      id: 'free',
+      totalSpots: 40,
+      coordinates: at(49.2503, 4.03),
+      availability: Availability.reported(6, minutesAgo(2)),
+    });
+    const popular = aParking({
+      id: 'popular',
+      totalSpots: 40,
+      coordinates: at(49.2504, 4.03),
+      availability: Availability.reported(3, minutesAgo(5)),
+      score: ParkingScore.of(20, 1),
+    });
+    const gateway = gatewayWith([popular, small, free, unknown]);
+
+    const result = await gateway.findNearby({
+      center,
+      filters: filtersWith({ radiusMeters: 500, minSpots: 5, availableOnly: true, sort: 'popularity' }),
+    });
+
+    expect(result.ok && result.value.map((p) => p.id)).toEqual(['popular', 'free']);
   });
 
   it('trouve des parkings de démo autour du centre de Reims', async () => {
     const gateway = new InMemoryParkingGateway(createReimsDemoStore(NOW), clock);
 
-    const result = await gateway.findNearby({ center: REIMS_DEMO_POSITION, radius: SearchRadius.DEFAULT });
+    const result = await gateway.findNearby({ center: REIMS_DEMO_POSITION, filters: filtersWith() });
 
     expect(result.ok && result.value.length).toBeGreaterThan(0);
   });

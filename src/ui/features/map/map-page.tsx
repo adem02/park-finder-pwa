@@ -1,29 +1,35 @@
 import { useMemo, useRef, useState } from 'react';
 import type { CoordinatesSnapshot } from '@domain/geo/coordinates';
-import { SearchRadius } from '@domain/geo/search-radius';
 import type { ParkingId } from '@domain/parking/parking-summary';
 import { useContainer } from '../../app/container-context';
 import { IconButton } from '../../components/icon-button';
 import { LocateIcon } from '../../components/icons';
-import { formatDistance } from '../../format/format-distance';
 import { useDebouncedValue } from '../../hooks/use-debounced-value';
 import { useHeightCssVariable } from '../../hooks/use-height-css-variable';
 import { useNow } from '../../hooks/use-now';
 import { MapView, type MapViewHandle } from '../../map/map-view';
 import { ParkingFeaturePresenter } from '../../map/parking-feature.presenter';
-import { locationFallbackMessage, nearbyErrorMessage } from './messages';
+import { locationFallbackMessage } from '../location/messages';
+import { useUserLocation } from '../location/use-user-location';
+import { ActiveFilterChips } from '../search/active-filter-chips';
+import { parkingsCountLabel } from '../search/filter-labels';
+import { FiltersButton } from '../search/filters-button';
+import { FiltersSheet } from '../search/filters-sheet';
+import type { SearchPageProps } from '../search/list-page';
+import { nearbyErrorMessage } from '../search/messages';
+import { useNearbyParkings } from '../search/use-nearby-parkings';
 import { ParkingPreviewCard } from './parking-preview-card';
 import { PinLegend } from './pin-legend';
-import { useNearbyParkings } from './use-nearby-parkings';
-import { useUserLocation } from './use-user-location';
 import styles from './map-page.module.css';
 
-export function MapPage() {
+/** Onglet « Carte » : les parkings autour du centre de la carte, avec les mêmes filtres que la liste. */
+export function MapPage({ filters, onFiltersChange }: SearchPageProps) {
   const { dataSource } = useContainer();
   const location = useUserLocation();
   const [mapCenter, setMapCenter] = useState<CoordinatesSnapshot | null>(null);
   const debouncedCenter = useDebouncedValue(mapCenter, 400);
   const [selectedId, setSelectedId] = useState<ParkingId | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const mapRef = useRef<MapViewHandle>(null);
   const bottomPanelRef = useHeightCssVariable<HTMLDivElement>('--bottom-panel-height');
   const now = useNow();
@@ -32,7 +38,7 @@ export function MapPage() {
     () => location.data?.position.toSnapshot() ?? null,
     [location.data],
   );
-  const parkings = useNearbyParkings(debouncedCenter ?? userPosition);
+  const parkings = useNearbyParkings(debouncedCenter ?? userPosition, filters);
 
   const pins = useMemo(
     () => ParkingFeaturePresenter.toFeatureCollection(parkings.data ?? [], now, selectedId),
@@ -73,10 +79,13 @@ export function MapPage() {
           <p className={styles.count} aria-live="polite">
             {parkings.isFetching && count === undefined
               ? 'Chargement…'
-              : `${count ?? 0} parking${(count ?? 0) > 1 ? 's' : ''} gratuit${(count ?? 0) > 1 ? 's' : ''} à ${formatDistance(SearchRadius.DEFAULT.meters)}`}
+              : parkingsCountLabel(count ?? 0, filters.radius.meters)}
           </p>
           {dataSource === 'demo' && <span className={styles.demo}>Démo</span>}
+          <FiltersButton activeCount={filters.activeCount()} onClick={() => setFiltersOpen(true)} />
         </header>
+
+        <ActiveFilterChips filters={filters} onChange={onFiltersChange} />
 
         {location.data.source === 'fallback' && (
           <p className={styles.banner} role="status">
@@ -110,6 +119,13 @@ export function MapPage() {
           <PinLegend />
         )}
       </div>
+
+      <FiltersSheet
+        open={filtersOpen}
+        filters={filters}
+        onClose={() => setFiltersOpen(false)}
+        onApply={onFiltersChange}
+      />
     </main>
   );
 }

@@ -1,20 +1,26 @@
 import { Coordinates, type InvalidCoordinatesError } from '@domain/geo/coordinates';
-import { SearchRadius, type InvalidSearchRadiusError } from '@domain/geo/search-radius';
+import type { InvalidSearchRadiusError } from '@domain/geo/search-radius';
 import type { ParkingSummary } from '@domain/parking/parking-summary';
-import { ok, type Result } from '@domain/shared/result';
+import {
+  ParkingFilters,
+  type InvalidMinSpotsError,
+  type ParkingFiltersInput,
+} from '@domain/search/parking-filters';
+import type { Result } from '@domain/shared/result';
 import type { GatewayError } from '../errors/gateway.errors';
 import type { ParkingGateway } from '../ports/parking.gateway';
 
 export interface FindNearbyParkingsInput {
   readonly latitude: number;
   readonly longitude: number;
-  /** Rayon en mètres. Par défaut : 2 km. */
-  readonly radiusMeters?: number;
+  /** Critères omis : valeurs par défaut (2 km, tous, tri par distance). */
+  readonly filters?: ParkingFiltersInput;
 }
 
 export type FindNearbyParkingsError =
   | InvalidCoordinatesError
   | InvalidSearchRadiusError
+  | InvalidMinSpotsError
   | GatewayError;
 
 export class FindNearbyParkings {
@@ -27,12 +33,9 @@ export class FindNearbyParkings {
     const center = Coordinates.create(input.latitude, input.longitude);
     if (!center.ok) return center;
 
-    const radius =
-      input.radiusMeters === undefined
-        ? ok(SearchRadius.DEFAULT)
-        : SearchRadius.create(input.radiusMeters);
-    if (!radius.ok) return radius;
+    const filters = ParkingFilters.create(input.filters);
+    if (!filters.ok) return filters;
 
-    return this.parkings.findNearby({ center: center.value, radius: radius.value }, signal);
+    return this.parkings.findNearby({ center: center.value, filters: filters.value }, signal);
   }
 }

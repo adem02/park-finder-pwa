@@ -89,6 +89,10 @@ export class ParkingSummary {
     return this.props.score;
   }
 
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
   isVerified(): boolean {
     return this.props.score.isVerified();
   }

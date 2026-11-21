@@ -3,6 +3,7 @@ import { Comment } from '@domain/comment/comment';
 import { Coordinates } from '@domain/geo/coordinates';
 import { ParkingDetails, type ParkingDetailsProps } from '@domain/parking/parking-details';
 import { ParkingSummary, type ParkingSummaryProps } from '@domain/parking/parking-summary';
+import { ParkingFilters, type ParkingFiltersInput } from '@domain/search/parking-filters';
 import { Author } from '@domain/user/author';
 import { ParkingScore } from '@domain/vote/parking-score';
 import { ParkingVotes } from '@domain/vote/parking-votes';
@@ -28,6 +29,13 @@ export const aComment = (overrides: Partial<{ id: string; content: string; autho
   });
 
 /** Construit un parking valide ; chaque test ne précise que ce qui compte pour lui. */
+/** Filtres valides pour les tests (lève si l'entrée est invalide). */
+export const filtersWith = (input: ParkingFiltersInput = {}): ParkingFilters => {
+  const filters = ParkingFilters.create(input);
+  if (!filters.ok) throw filters.error;
+  return filters.value;
+};
+
 export const aParking = (overrides: Partial<ParkingSummaryProps> = {}): ParkingSummary =>
   ParkingSummary.create({
     id: 'parking-1',

@@ -2,7 +2,7 @@
   display: grid;
   gap: var(--space-sm);
   padding: var(--space-md);
-  padding-bottom: calc(var(--space-md) + var(--safe-bottom));
+  padding-bottom: calc(var(--space-md) + var(--bottom-inset));
   background: var(--color-surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: var(--shadow-sheet);

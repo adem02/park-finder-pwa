@@ -94,3 +94,28 @@ export const ChevronRightIcon = (props: IconProps) => (
     <path d="M9 6l6 6-6 6" />
   </svg>
 );
+
+export const FilterIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1" />
+    <circle cx="15" cy="6" r="2" />
+    <circle cx="9" cy="12" r="2" />
+    <circle cx="17" cy="18" r="2" />
+  </svg>
+);
+
+export const MapIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z" />
+    <path d="M9 4v13M15 6.5v13" />
+  </svg>
+);
+
+export const ListIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M9 6h11M9 12h11M9 18h11" />
+    <circle cx="4.5" cy="6" r="1" fill="currentColor" />
+    <circle cx="4.5" cy="12" r="1" fill="currentColor" />
+    <circle cx="4.5" cy="18" r="1" fill="currentColor" />
+  </svg>
+);
