@@ -1,8 +1,9 @@
+import { Link } from '@tanstack/react-router';
 import type { ParkingSummary } from '@domain/parking/parking-summary';
-import { CheckBadgeIcon, CloseIcon } from '../../components/icons';
+import { AvailabilityBadge } from '../../components/availability-badge';
+import { ChevronRightIcon, CheckBadgeIcon, CloseIcon } from '../../components/icons';
 import { IconButton } from '../../components/icon-button';
 import { formatDistance } from '../../format/format-distance';
-import { AvailabilityBadge } from './availability-badge';
 import styles from './parking-preview-card.module.css';
 
 interface ParkingPreviewCardProps {
@@ -29,11 +30,24 @@ export function ParkingPreviewCard({ parking, now, onClose }: ParkingPreviewCard
         </IconButton>
       </header>
 
-      <AvailabilityBadge parking={parking} now={now} />
+      <AvailabilityBadge
+        availability={parking.availability}
+        totalSpots={parking.totalSpots}
+        now={now}
+      />
 
       <p className={styles.meta}>
         {parking.totalSpots} places au total · à {formatDistance(parking.distanceMeters)}
       </p>
+
+      <Link
+        to="/parking/$parkingId"
+        params={{ parkingId: parking.id }}
+        className={styles.detailsLink}
+      >
+        Voir le détail
+        <ChevronRightIcon width={18} height={18} />
+      </Link>
     </article>
   );
 }

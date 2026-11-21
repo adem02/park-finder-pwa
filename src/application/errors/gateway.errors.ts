@@ -32,6 +32,22 @@ export class NotFoundError extends GatewayFailure {
   }
 }
 
+export class ConflictError extends GatewayFailure {
+  readonly kind = 'Conflict';
+
+  constructor(readonly details: string) {
+    super(`Conflit : ${details}`);
+  }
+}
+
+export class BadRequestError extends GatewayFailure {
+  readonly kind = 'BadRequest';
+
+  constructor(readonly details: string) {
+    super(`Requête refusée : ${details}`);
+  }
+}
+
 export class ServerError extends GatewayFailure {
   readonly kind = 'Server';
 
@@ -52,5 +68,7 @@ export type GatewayError =
   | NetworkError
   | UnauthorizedError
   | NotFoundError
+  | ConflictError
+  | BadRequestError
   | ServerError
   | InvalidResponseError;

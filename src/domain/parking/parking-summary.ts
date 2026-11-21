@@ -102,10 +102,7 @@ export class ParkingSummary {
   }
 
   pinState(now: Date): PinState {
-    const freshness = this.props.availability.freshness(now);
-    if (freshness === 'none' || freshness === 'expired') return 'unknown';
-    if (this.availableSpotsAt(now) === 0) return 'full';
-    return freshness;
+    return this.props.availability.pinState(now);
   }
 
   /** Copie du parking, vu depuis une autre position. */

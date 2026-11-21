@@ -1,6 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import { useState } from 'react';
+import { ToastProvider } from '../components/toast';
 import { createQueryClient } from '../query/query-client';
 import type { AppContainer } from './app-container';
 import { ContainerProvider } from './container-context';
@@ -13,7 +14,9 @@ export function App({ container }: { container: AppContainer }) {
   return (
     <ContainerProvider container={container}>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
       </QueryClientProvider>
     </ContainerProvider>
   );

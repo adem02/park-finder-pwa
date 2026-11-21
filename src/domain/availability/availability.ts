@@ -1,3 +1,5 @@
+import type { PinState } from '../parking/pin-state';
+
 const MINUTE_MS = 60_000;
 
 /** Un signalement est « récent » pendant 10 min, puis « ancien », et expire à 15 min (docs/decisions.md). */
@@ -55,6 +57,14 @@ export class Availability {
     if (spots === null) return 'unknown';
     if (spots === 0) return 'full';
     return spots < totalSpots / 3 ? 'low' : 'ok';
+  }
+
+  /** Couleur du pin : vert < 10 min, orange 10–15 min, rouge si plein, gris sans info valide. */
+  pinState(now: Date): PinState {
+    const freshness = this.freshness(now);
+    if (freshness === 'none' || freshness === 'expired') return 'unknown';
+    if (this.availableSpots === 0) return 'full';
+    return freshness;
   }
 
   toSnapshot(): AvailabilitySnapshot {

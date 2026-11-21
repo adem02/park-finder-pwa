@@ -1,4 +1,6 @@
 import {
+  BadRequestError,
+  ConflictError,
   NetworkError,
   NotFoundError,
   ServerError,
@@ -41,6 +43,10 @@ export class FetchHttpClient {
     return this.request('POST', path, { ...options, body });
   }
 
+  delete(path: string, options: Omit<RequestOptions, 'body'> = {}): Promise<Result<unknown, GatewayError>> {
+    return this.request('DELETE', path, options);
+  }
+
   private async request(
     method: string,
     path: string,
@@ -65,11 +71,14 @@ export class FetchHttpClient {
 
     if (response.status === 401) return err(new UnauthorizedError());
     if (response.status === 404) return err(new NotFoundError());
+    if (response.status === 400) return err(new BadRequestError(await readErrorMessage(response)));
+    if (response.status === 409) return err(new ConflictError(await readErrorMessage(response)));
     if (!response.ok) return err(new ServerError(response.status));
-    if (response.status === 204) return ok(undefined);
 
+    const text = await response.text();
+    if (text.length === 0) return ok(undefined);
     try {
-      return ok((await response.json()) as unknown);
+      return ok(JSON.parse(text) as unknown);
     } catch {
       return err(new InvalidResponseError('le corps de la réponse n’est pas du JSON valide'));
     }
@@ -94,4 +103,16 @@ export class FetchHttpClient {
   private isOnline(): boolean {
     return this.options.isOnline?.() ?? globalThis.navigator?.onLine ?? true;
   }
+}
+
+/** NestJS renvoie `{ statusCode, message }`, où `message` peut être une liste (validation). */
+async function readErrorMessage(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { message?: unknown };
+    if (Array.isArray(body.message)) return body.message.map(String).join(', ');
+    if (typeof body.message === 'string') return body.message;
+  } catch {
+    // corps absent ou illisible : message générique
+  }
+  return `HTTP ${response.status}`;
 }

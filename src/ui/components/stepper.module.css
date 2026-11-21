@@ -1,0 +1,50 @@
+.stepper {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+}
+
+.label {
+  font: var(--text-body);
+  color: var(--color-text-secondary);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.step {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.step:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.value {
+  width: 96px;
+  border: 0;
+  background: none;
+  text-align: center;
+  font: 600 40px / 1 var(--font-family);
+  color: var(--color-text-primary);
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.value::-webkit-inner-spin-button,
+.value::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}

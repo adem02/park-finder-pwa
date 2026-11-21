@@ -9,7 +9,12 @@ import { aParking } from '../../support/parking.builder';
 
 const gatewayReturning = (result: Awaited<ReturnType<ParkingGateway['findNearby']>>) => {
   const findNearby = vi.fn<ParkingGateway['findNearby']>().mockResolvedValue(result);
-  return { gateway: { findNearby } satisfies ParkingGateway, findNearby };
+  const gateway: ParkingGateway = {
+    findNearby,
+    getDetails: vi.fn<ParkingGateway['getDetails']>(),
+    reportAvailability: vi.fn<ParkingGateway['reportAvailability']>(),
+  };
+  return { gateway, findNearby };
 };
 
 describe('FindNearbyParkings', () => {

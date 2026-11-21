@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { availabilityDtoSchema, coordinatesDtoSchema } from './shared.dto';
 
 /** Format de GET /parkings (FindNearbyParkingsOutputDto côté API). Ne sort jamais d'infrastructure/. */
 export const parkingItemDtoSchema = z.object({
@@ -6,16 +7,9 @@ export const parkingItemDtoSchema = z.object({
   name: z.string(),
   totalSpots: z.number().int().nonnegative(),
   photos: z.array(z.string()),
-  coordinates: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
+  coordinates: coordinatesDtoSchema,
   distanceMeters: z.number().nonnegative(),
-  availability: z.object({
-    availableSpots: z.number().int().nonnegative().nullable(),
-    reportedAt: z.string().nullable(),
-    isRecent: z.boolean(),
-  }),
+  availability: availabilityDtoSchema,
   votes: z.object({
     upvotes: z.number().int().nonnegative(),
     downvotes: z.number().int().nonnegative(),

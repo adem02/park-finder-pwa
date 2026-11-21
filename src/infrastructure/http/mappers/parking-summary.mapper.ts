@@ -1,10 +1,10 @@
 import { InvalidResponseError } from '@application/errors/gateway.errors';
-import { Availability } from '@domain/availability/availability';
 import { Coordinates } from '@domain/geo/coordinates';
 import { ParkingSummary } from '@domain/parking/parking-summary';
 import { err, ok, type Result } from '@domain/shared/result';
 import { ParkingScore } from '@domain/vote/parking-score';
 import type { ParkingItemDto } from '../dto/find-nearby-parkings.dto';
+import { SharedMapper } from './shared.mapper';
 
 export class ParkingSummaryMapper {
   static toDomain(dto: ParkingItemDto): Result<ParkingSummary, InvalidResponseError> {
@@ -21,19 +21,10 @@ export class ParkingSummaryMapper {
         photos: dto.photos,
         coordinates: coordinates.value,
         distanceMeters: dto.distanceMeters,
-        availability: ParkingSummaryMapper.toAvailability(dto.availability),
+        availability: SharedMapper.toAvailability(dto.availability),
         score: ParkingScore.of(dto.votes.upvotes, dto.votes.downvotes),
         createdAt: new Date(dto.createdAt),
       }),
     );
-  }
-
-  private static toAvailability({
-    availableSpots,
-    reportedAt,
-  }: ParkingItemDto['availability']): Availability {
-    return availableSpots === null || reportedAt === null
-      ? Availability.none()
-      : Availability.reported(availableSpots, new Date(reportedAt));
   }
 }

@@ -42,6 +42,21 @@
   color: var(--color-text-secondary);
 }
 
+.detailsLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 48px;
+  margin-top: var(--space-xs);
+  border-radius: var(--radius-md);
+  font: var(--text-card-title);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-surface);
+  background: var(--color-primary);
+}
+
 @keyframes slide-up {
   from {
     transform: translateY(24px);

@@ -1,12 +1,13 @@
 import { Availability } from '@domain/availability/availability';
+import { Comment } from '@domain/comment/comment';
 import { Coordinates } from '@domain/geo/coordinates';
-import { ParkingSummary } from '@domain/parking/parking-summary';
-import { ParkingScore } from '@domain/vote/parking-score';
+import { Author } from '@domain/user/author';
+import { InMemoryParkingStore, type DemoParkingRecord } from './in-memory-parking.store';
 import seed from './reims-demo-parkings.json';
 
 /**
  * Parkings gratuits de Reims issus d'OpenStreetMap (© contributeurs OpenStreetMap, ODbL),
- * générés par `npm run seed:demo`. Les signalements et les votes sont fictifs.
+ * générés par `npm run seed:demo`. Contributeurs, signalements, votes et commentaires sont fictifs.
  */
 interface DemoParkingSeed {
   readonly id: string;
@@ -21,8 +22,22 @@ const SEED_DATE = new Date('2026-07-30T00:00:00Z');
 /** Position simulée de l'utilisateur en démo : le centre de Reims, où se trouvent les parkings. */
 export const REIMS_DEMO_POSITION = Coordinates.fromSnapshot({ latitude: 49.2583, longitude: 4.0317 });
 
+const DEMO_CONTRIBUTORS = ['camille_r', 'theo51', 'ines.m', 'lucas_reims'].map((username, index) =>
+  Author.fromSnapshot({ id: `demo-contributor-${index}`, username, photoUrl: null }),
+);
+
+const DEMO_COMMENTS = [
+  'Souvent des places en milieu de matinée, plus compliqué le samedi.',
+  'Accès facile, bien éclairé le soir.',
+  'Attention, le marché occupe une partie du parking le mercredi.',
+  'Pratique pour aller au centre à pied, 10 minutes environ.',
+  'Revêtement un peu abîmé à l’entrée, rien de grave.',
+];
+
 const minutesBefore = (now: Date, minutes: number): Date =>
   new Date(now.getTime() - minutes * 60_000);
+
+const pick = <T>(items: readonly T[], index: number): T => items[index % items.length] as T;
 
 /** Répartit les 4 états de pin pour que la démo les montre tous. */
 const demoAvailability = (index: number, totalSpots: number, now: Date): Availability => {
@@ -38,20 +53,36 @@ const demoAvailability = (index: number, totalSpots: number, now: Date): Availab
   }
 };
 
-const demoScore = (index: number): ParkingScore =>
-  index % 3 === 0 ? ParkingScore.of(14, 1) : ParkingScore.of(index % 4, 0);
-
-export const createReimsDemoParkings = (now: Date): ParkingSummary[] =>
-  (seed as readonly DemoParkingSeed[]).map((parking, index) =>
-    ParkingSummary.create({
-      id: parking.id,
-      name: parking.name,
-      totalSpots: parking.totalSpots,
-      photos: [],
-      coordinates: Coordinates.fromSnapshot(parking),
-      distanceMeters: 0,
-      availability: demoAvailability(index, parking.totalSpots, now),
-      score: demoScore(index),
-      createdAt: SEED_DATE,
+/** Un parking sur deux a des commentaires (de 1 à 4), du plus récent au plus ancien. */
+const demoComments = (index: number, now: Date): Comment[] => {
+  if (index % 2 === 1) return [];
+  const count = (index % 4) + 1;
+  return Array.from({ length: count }, (_, position) =>
+    Comment.create({
+      id: `demo-${index}-comment-${position}`,
+      content: pick(DEMO_COMMENTS, index + position),
+      author: pick(DEMO_CONTRIBUTORS, index + position + 1),
+      createdAt: minutesBefore(now, 60 * (position + 1) * ((index % 5) + 1)),
     }),
+  );
+};
+
+export const createReimsDemoStore = (now: Date): InMemoryParkingStore =>
+  new InMemoryParkingStore(
+    (seed as readonly DemoParkingSeed[]).map(
+      (parking, index): DemoParkingRecord => ({
+        id: parking.id,
+        name: parking.name,
+        totalSpots: parking.totalSpots,
+        photos: [],
+        coordinates: Coordinates.fromSnapshot(parking),
+        addedBy: pick(DEMO_CONTRIBUTORS, index),
+        availability: demoAvailability(index, parking.totalSpots, now),
+        upvotes: index % 3 === 0 ? 14 : index % 4,
+        downvotes: index % 3 === 0 ? 1 : 0,
+        userVote: null,
+        comments: demoComments(index, now),
+        createdAt: SEED_DATE,
+      }),
+    ),
   );

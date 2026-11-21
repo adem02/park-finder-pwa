@@ -1,11 +1,18 @@
-import type { ParkingSummary } from '@domain/parking/parking-summary';
-import { formatTimeAgo } from '../../format/format-time-ago';
+import type { Availability } from '@domain/availability/availability';
+import { formatTimeAgo } from '../format/format-time-ago';
 import styles from './availability-badge.module.css';
 
-export function AvailabilityBadge({ parking, now }: { parking: ParkingSummary; now: Date }) {
-  const level = parking.availabilityLevel(now);
-  const spots = parking.availableSpotsAt(now);
-  const reportedAt = parking.availability.reportedAt;
+interface AvailabilityBadgeProps {
+  availability: Availability;
+  totalSpots: number;
+  now: Date;
+}
+
+/** Badge du DS : gris sans info, rouge si complet, orange si moins d'un tiers, vert sinon. */
+export function AvailabilityBadge({ availability, totalSpots, now }: AvailabilityBadgeProps) {
+  const level = availability.level(totalSpots, now);
+  const spots = availability.spotsAt(now);
+  const { reportedAt } = availability;
 
   const label =
     spots === null
