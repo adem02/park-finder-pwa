@@ -14,7 +14,7 @@ npm run dev        # http://localhost:5190
 
 Par défaut, l'app tourne en **mode démo** : les 91 parkings gratuits de Reims issus d'OpenStreetMap
 sont en mémoire, avec des signalements fictifs, et l'utilisateur est placé au centre de Reims.
-Le mode `api` (`VITE_DATA_SOURCE=api`) attend l'écran de connexion, car `GET /parkings` exige un JWT.
+Le mode `api` (`VITE_DATA_SOURCE=api`) utilise park-finder-api : l'app demande alors de se connecter (ou de créer un compte).
 
 ## Commandes
 
