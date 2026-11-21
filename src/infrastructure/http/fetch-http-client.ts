@@ -108,8 +108,14 @@ export class FetchHttpClient {
 
     if (response.status === 401) return err(new UnauthorizedError());
     if (response.status === 404) return err(new NotFoundError());
-    if (response.status === 400) return err(new BadRequestError(await readErrorMessage(response)));
-    if (response.status === 409) return err(new ConflictError(await readErrorMessage(response)));
+    if (response.status === 400) {
+      const { message, code } = await readError(response);
+      return err(new BadRequestError(message, code));
+    }
+    if (response.status === 409) {
+      const { message, code } = await readError(response);
+      return err(new ConflictError(message, code));
+    }
     if (!response.ok) return err(new ServerError(response.status));
 
     const text = await response.text();
@@ -142,14 +148,21 @@ export class FetchHttpClient {
   }
 }
 
-/** NestJS renvoie `{ statusCode, message }`, où `message` peut être une liste (validation). */
-async function readErrorMessage(response: Response): Promise<string> {
+/**
+ * Corps d'erreur de l'API : `{ statusCode, message, error }`. `message` peut être une liste
+ * (validation NestJS) ; `error` porte le nom de l'exception métier (ex. `UsernameAlreadyTakenException`).
+ */
+async function readError(response: Response): Promise<{ message: string; code: string | null }> {
   try {
-    const body = (await response.json()) as { message?: unknown };
-    if (Array.isArray(body.message)) return body.message.map(String).join(', ');
-    if (typeof body.message === 'string') return body.message;
+    const body = (await response.json()) as { message?: unknown; error?: unknown };
+    const message = Array.isArray(body.message)
+      ? body.message.map(String).join(', ')
+      : typeof body.message === 'string'
+        ? body.message
+        : `HTTP ${response.status}`;
+    return { message, code: typeof body.error === 'string' ? body.error : null };
   } catch {
     // corps absent ou illisible : message générique
+    return { message: `HTTP ${response.status}`, code: null };
   }
-  return `HTTP ${response.status}`;
 }

@@ -16,3 +16,19 @@ export class EmailAlreadyUsedError extends Error {
     this.name = 'EmailAlreadyUsedError';
   }
 }
+
+export class UsernameAlreadyTakenError extends Error {
+  readonly kind = 'UsernameAlreadyTaken';
+
+  constructor() {
+    super('Ce nom d’utilisateur est déjà pris.');
+    this.name = 'UsernameAlreadyTakenError';
+  }
+}
+
+/** Codes d'erreur de park-finder-api (nom des exceptions métier, champ `error` des réponses 409). */
+export const API_ERROR_CODES = {
+  usernameTaken: 'UsernameAlreadyTakenException',
+  emailTaken: 'EmailAlreadyInUseException',
+  parkingExists: 'ParkingAlreadyExistsException',
+} as const;

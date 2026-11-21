@@ -1,4 +1,5 @@
-import { NotFoundError, type GatewayError } from '@application/errors/gateway.errors';
+import { API_ERROR_CODES } from '@application/auth/auth.errors';
+import { ConflictError, NotFoundError, type GatewayError } from '@application/errors/gateway.errors';
 import type { Clock } from '@application/ports/clock.port';
 import type { NearbyQuery, ParkingGateway } from '@application/ports/parking.gateway';
 import type { PreparedPhoto } from '@application/ports/photo-processor.port';
@@ -50,8 +51,12 @@ export class InMemoryParkingGateway implements ParkingGateway {
     const tooClose = this.store
       .all()
       .some((record) => parking.coordinates.distanceTo(record.coordinates) <= DUPLICATE_PARKING_RADIUS_METERS);
-    // Comme l'API, qui répond 404 dans ce cas.
-    if (tooClose) return Promise.resolve(err(new NotFoundError()));
+    // Comme l'API : 409 ParkingAlreadyExistsException.
+    if (tooClose) {
+      return Promise.resolve(
+        err(new ConflictError('A parking already exists near the provided coordinates.', API_ERROR_CODES.parkingExists)),
+      );
+    }
 
     const id = `added-${this.store.all().length + 1}-${this.clock.now().getTime()}`;
     this.store.insert({

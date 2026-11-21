@@ -1,7 +1,7 @@
 import { NewParking, type InvalidNewParkingError } from '@domain/parking/new-parking';
 import type { ParkingId } from '@domain/parking/parking-summary';
 import { err, type Result } from '@domain/shared/result';
-import { NotFoundError, type GatewayError } from '../errors/gateway.errors';
+import { ConflictError, NotFoundError, type GatewayError } from '../errors/gateway.errors';
 import type { ParkingGateway } from '../ports/parking.gateway';
 import type { PreparedPhoto } from '../ports/photo-processor.port';
 
@@ -32,8 +32,11 @@ export class AddParking {
     if (!parking.ok) return parking;
 
     const result = await this.parkings.add(parking.value, input.photos);
-    // L'API répond 404 (« A parking already exists near the provided coordinates ») au lieu d'une 409.
-    if (!result.ok && result.error instanceof NotFoundError) return err(new DuplicateParkingError());
+    // 409 depuis la correction de l'API ; la 404 des versions précédentes reste comprise
+    // le temps que tous les environnements soient à jour.
+    if (!result.ok && (result.error instanceof ConflictError || result.error instanceof NotFoundError)) {
+      return err(new DuplicateParkingError());
+    }
     return result;
   }
 }

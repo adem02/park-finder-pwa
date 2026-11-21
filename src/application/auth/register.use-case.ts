@@ -3,7 +3,7 @@ import { err, type Result } from '@domain/shared/result';
 import type { CurrentUser } from '@domain/user/current-user';
 import { ConflictError, type GatewayError } from '../errors/gateway.errors';
 import type { AuthGateway } from '../ports/auth.gateway';
-import { EmailAlreadyUsedError } from './auth.errors';
+import { API_ERROR_CODES, EmailAlreadyUsedError, UsernameAlreadyTakenError } from './auth.errors';
 
 export interface RegisterInput {
   readonly email: string;
@@ -11,7 +11,11 @@ export interface RegisterInput {
   readonly password: string;
 }
 
-export type RegisterError = InvalidCredentialsInputError | EmailAlreadyUsedError | GatewayError;
+export type RegisterError =
+  | InvalidCredentialsInputError
+  | EmailAlreadyUsedError
+  | UsernameAlreadyTakenError
+  | GatewayError;
 
 export class Register {
   constructor(private readonly auth: AuthGateway) {}
@@ -22,7 +26,11 @@ export class Register {
 
     const result = await this.auth.register(registration.value);
     if (!result.ok && result.error instanceof ConflictError) {
-      return err(new EmailAlreadyUsedError());
+      return err(
+        result.error.code === API_ERROR_CODES.usernameTaken
+          ? new UsernameAlreadyTakenError()
+          : new EmailAlreadyUsedError(),
+      );
     }
     return result;
   }

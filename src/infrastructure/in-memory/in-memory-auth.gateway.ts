@@ -1,4 +1,5 @@
 import { ConflictError, UnauthorizedError, type GatewayError } from '@application/errors/gateway.errors';
+import { API_ERROR_CODES } from '@application/auth/auth.errors';
 import type { AuthGateway } from '@application/ports/auth.gateway';
 import type { SessionExpiryPort } from '@application/ports/session-expiry.port';
 import type { LoginCredentials, Registration } from '@domain/auth/credentials';
@@ -43,7 +44,13 @@ export class InMemoryAuthGateway implements AuthGateway {
 
   register(registration: Registration): Promise<Result<CurrentUser, GatewayError>> {
     if (this.accounts.has(registration.email)) {
-      return Promise.resolve(err(new ConflictError('Email already in use')));
+      return Promise.resolve(err(new ConflictError('Email already in use', API_ERROR_CODES.emailTaken)));
+    }
+    const usernameTaken = [...this.accounts.values()].some(
+      (account) => account.user.username.toLowerCase() === registration.username.toLowerCase(),
+    );
+    if (usernameTaken) {
+      return Promise.resolve(err(new ConflictError('Username already taken', API_ERROR_CODES.usernameTaken)));
     }
     const user = CurrentUser.fromSnapshot({
       id: `user-${this.accounts.size + 1}`,

@@ -35,7 +35,14 @@ export class NotFoundError extends GatewayFailure {
 export class ConflictError extends GatewayFailure {
   readonly kind = 'Conflict';
 
-  constructor(readonly details: string) {
+  /**
+   * @param code Nom de l'erreur métier renvoyé par l'API (champ `error`,
+   *   ex. `UsernameAlreadyTakenException`) : distingue deux conflits sans dépendre du message.
+   */
+  constructor(
+    readonly details: string,
+    readonly code: string | null = null,
+  ) {
     super(`Conflit : ${details}`);
   }
 }
@@ -43,7 +50,10 @@ export class ConflictError extends GatewayFailure {
 export class BadRequestError extends GatewayFailure {
   readonly kind = 'BadRequest';
 
-  constructor(readonly details: string) {
+  constructor(
+    readonly details: string,
+    readonly code: string | null = null,
+  ) {
     super(`Requête refusée : ${details}`);
   }
 }
