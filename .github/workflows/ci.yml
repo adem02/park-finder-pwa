@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+    # Sur un push, inutile de tout relancer pour de la doc. Pas de filtre sur les PR :
+    # un check obligatoire qui ne démarre jamais bloquerait le merge.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+# Un nouveau push sur une PR annule le run précédent, devenu inutile.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Typecheck, ESLint, règles d'architecture (dependency-cruiser) et tests Vitest.
+      - name: Check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
