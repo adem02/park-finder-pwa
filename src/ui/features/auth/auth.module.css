@@ -118,3 +118,55 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* ---------- Connexion Google ---------- */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0;
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 48px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font: var(--text-card-title);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+.googleButton:active {
+  background: var(--color-background);
+}
+
+.notice {
+  margin: 0;
+  padding: 10px var(--space-md);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-warning) 14%, var(--color-surface));
+}
+
+.textLink {
+  justify-self: center;
+  font-weight: 600;
+  color: var(--color-primary);
+}
