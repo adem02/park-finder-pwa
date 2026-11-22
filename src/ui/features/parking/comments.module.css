@@ -1,0 +1,132 @@
+.list {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comment {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.commentBody {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.commentMeta {
+  margin: 0;
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.commentMeta strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.commentText {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Page des commentaires */
+.page {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--color-background);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: calc(var(--safe-top) + var(--offline-banner-height, 0px) + var(--space-sm)) var(--space-md)
+    var(--space-sm) calc(var(--safe-left) + var(--space-sm));
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  margin: 0;
+  min-width: 0;
+  font: var(--text-card-title);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content {
+  display: grid;
+  align-content: start;
+  gap: var(--space-md);
+  padding: var(--space-md) calc(var(--safe-right) + var(--space-md)) var(--space-lg)
+    calc(var(--safe-left) + var(--space-md));
+}
+
+.composer {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-sm) calc(var(--safe-right) + var(--space-md))
+    calc(var(--safe-bottom) + var(--space-sm)) calc(var(--safe-left) + var(--space-md));
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.composerRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+}
+
+.textarea {
+  flex: 1;
+  min-height: 44px;
+  max-height: 160px;
+  padding: 10px var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font: var(--text-body);
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  resize: none;
+  field-sizing: content;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.counter {
+  margin: 0;
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.counterOver {
+  color: var(--color-danger);
+}
+
+.error {
+  margin: 0;
+  font: var(--text-caption);
+  color: var(--color-danger);
+}

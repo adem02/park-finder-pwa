@@ -1,0 +1,63 @@
+name: Deploy
+
+# Production directement : un merge dans main publie la PWA sur Firebase Hosting.
+# Les PR vers main passent déjà la CI obligatoire (ruleset).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  # Jeton OIDC de GitHub, échangé contre un accès Google temporaire : aucune clé stockée.
+  id-token: write
+
+env:
+  FIREBASE_PROJECT: park-finder-39b69
+  # Workload Identity Federation du projet de prod (limitée à ce repo, branche main).
+  WIF_PROVIDER: projects/426604959837/locations/global/workloadIdentityPools/github-deploy/providers/github-actions
+  DEPLOY_SERVICE_ACCOUNT: github-deploy-hosting@park-finder-39b69.iam.gserviceaccount.com
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Variable API_URL dans Settings → Environments → production.
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Build de prod branché sur l'API (et non sur les données de démo).
+      - name: Build
+        run: npm run build
+        env:
+          VITE_DATA_SOURCE: api
+          VITE_API_URL: ${{ vars.API_URL }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Deploy to Firebase Hosting
+        run: npx --yes firebase-tools@14 deploy --only hosting --project "$FIREBASE_PROJECT" --non-interactive
+
+      - name: Smoke test
+        run: |
+          curl --fail --silent --show-error --output /dev/null \
+            --retry 6 --retry-delay 10 --retry-all-errors \
+            "https://${FIREBASE_PROJECT}.web.app/"
