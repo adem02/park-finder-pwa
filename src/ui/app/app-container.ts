@@ -42,6 +42,8 @@ export interface AppContainer {
   readonly clock: Clock;
   readonly dataSource: 'demo' | 'api';
   readonly sessionExpiry: SessionExpiryPort;
+  /** Page de l'API qui lance la connexion Google (navigation complète), absente en démo. */
+  readonly googleSignInUrl?: string;
   /** Identifiants affichés sur l'écran de connexion en mode démo. */
   readonly demoAccount?: { readonly email: string; readonly password: string };
 }

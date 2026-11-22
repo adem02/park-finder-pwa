@@ -4,6 +4,8 @@ import { Button } from '../../components/button';
 import { PasswordField } from '../../components/password-field';
 import { TextField } from '../../components/text-field';
 import { AuthLayout } from './auth-layout';
+import { GoogleButton } from './google-button';
+import { oauthErrorMessage, type OAuthErrorCode } from './oauth-error';
 import { fieldErrors, formError } from './messages';
 import { useLogin } from './use-session';
 import styles from './auth.module.css';
@@ -12,7 +14,7 @@ import styles from './auth.module.css';
  * Connexion. Une fois connecté, rien à faire ici : la session change et la route
  * redirige d'elle-même vers la page demandée (`?redirect=`) ou la carte.
  */
-export function LoginPage() {
+export function LoginPage({ oauthError }: { oauthError?: OAuthErrorCode } = {}) {
   const { demoAccount } = useContainer();
   const login = useLogin();
   const [email, setEmail] = useState('');
@@ -32,6 +34,11 @@ export function LoginPage() {
       subtitle="Connectez-vous pour signaler des places, voter et ajouter des parkings."
     >
       <form className={styles.form} noValidate onSubmit={submit}>
+        {oauthError && !login.isPending && (
+          <p className={styles.notice} role="alert">
+            {oauthErrorMessage(oauthError)}
+          </p>
+        )}
         <TextField
           label="Email"
           type="email"
@@ -60,6 +67,8 @@ export function LoginPage() {
         <Button type="submit" block loading={login.isPending}>
           Se connecter
         </Button>
+
+        <GoogleButton />
 
         {demoAccount && (
           <p className={styles.demo}>

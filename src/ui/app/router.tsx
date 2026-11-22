@@ -11,6 +11,8 @@ import type { ParkingFilters } from '@domain/search/parking-filters';
 import type { CurrentUser } from '@domain/user/current-user';
 import { AddParkingPage } from '../features/add-parking/add-parking-page';
 import { LoginPage } from '../features/auth/login-page';
+import { OAuthCallbackPage } from '../features/auth/oauth-callback-page';
+import { isOAuthErrorCode, type OAuthErrorCode } from '../features/auth/oauth-error';
 import { validateRedirectSearch } from '../features/auth/redirect-search';
 import { RegisterPage } from '../features/auth/register-page';
 import { MapPage } from '../features/map/map-page';
@@ -61,7 +63,20 @@ const welcomeRoute = createRoute({
 const loginRoute = createRoute({
   getParentRoute: () => guestRoute,
   path: '/login',
-  component: LoginPage,
+  // `?oauthError=` : posé par l'API quand la connexion Google n'aboutit pas.
+  validateSearch: (raw: Record<string, unknown>): { oauthError?: OAuthErrorCode } =>
+    isOAuthErrorCode(raw.oauthError) ? { oauthError: raw.oauthError } : {},
+  component: function LoginRoute() {
+    const { oauthError } = loginRoute.useSearch();
+    return <LoginPage oauthError={oauthError} />;
+  },
+});
+
+/** Retour de Google : la session est restaurée avant l'affichage, puis la garde redirige vers la carte. */
+const oauthCallbackRoute = createRoute({
+  getParentRoute: () => guestRoute,
+  path: '/auth/callback',
+  component: OAuthCallbackPage,
 });
 
 const registerRoute = createRoute({
@@ -165,7 +180,7 @@ const parkingCommentsRoute = createRoute({
 });
 
 export const routeTree = rootRoute.addChildren([
-  guestRoute.addChildren([welcomeRoute, loginRoute, registerRoute]),
+  guestRoute.addChildren([welcomeRoute, loginRoute, registerRoute, oauthCallbackRoute]),
   appRoute.addChildren([
     tabsRoute.addChildren([mapRoute, listRoute, profileRoute]),
     addParkingRoute,

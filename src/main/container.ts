@@ -96,6 +96,8 @@ export function createContainer(env: Env): AppContainer {
     dataSource: env.dataSource,
     sessionExpiry: gateways.sessionExpiry,
     demoAccount: env.dataSource === 'demo' ? DEMO_ACCOUNT : undefined,
+    googleSignInUrl:
+      env.dataSource === 'api' ? new URL('/auth/google', env.apiUrl).toString() : undefined,
     useCases: {
       login: new Login(gateways.auth),
       register: new Register(gateways.auth),

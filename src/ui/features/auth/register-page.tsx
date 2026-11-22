@@ -5,6 +5,7 @@ import { CheckIcon } from '../../components/icons';
 import { PasswordField } from '../../components/password-field';
 import { TextField } from '../../components/text-field';
 import { AuthLayout } from './auth-layout';
+import { GoogleButton } from './google-button';
 import { fieldErrors, formError } from './messages';
 import { useRegister } from './use-session';
 import styles from './auth.module.css';
@@ -88,6 +89,8 @@ export function RegisterPage() {
         <Button type="submit" block loading={register.isPending}>
           Créer mon compte
         </Button>
+
+        <GoogleButton />
       </form>
     </AuthLayout>
   );
