@@ -15,7 +15,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
     <main className={styles.page}>
       <p className={styles.brand}>
         <ParkingIcon width={28} height={28} />
-        ParkFinder
+        PlaceGratos
       </p>
 
       <div className={styles.card}>

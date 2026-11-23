@@ -76,7 +76,7 @@ export function MapPage({ filters, onFiltersChange }: SearchPageProps) {
 
       <div className={styles.top}>
         <header className={styles.topBar}>
-          <h1 className={styles.title}>ParkFinder</h1>
+          <h1 className={styles.title}>PlaceGratos</h1>
           <p className={styles.count} aria-live="polite">
             {parkings.isFetching && count === undefined
               ? 'Chargement…'
