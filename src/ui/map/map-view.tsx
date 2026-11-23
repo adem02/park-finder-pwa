@@ -71,7 +71,11 @@ export function MapView({
       style: MAP_STYLE_URL,
       center: [initialCenter.longitude, initialCenter.latitude],
       zoom: DEFAULT_ZOOM,
-      attributionControl: { compact: true },
+      // Les parkings importés viennent d'OpenStreetMap (ODbL) : crédit obligatoire, à côté du fond de carte.
+      attributionControl: {
+        compact: true,
+        customAttribution: 'Parkings © contributeurs OpenStreetMap',
+      },
     });
 
     instance.on('load', () => {
