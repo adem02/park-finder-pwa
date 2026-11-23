@@ -50,6 +50,10 @@ export function ProfilePage({ user }: ProfilePageProps) {
       <Button variant="secondary" block loading={logout.isPending} onClick={() => logout.mutate()}>
         Se déconnecter
       </Button>
+
+      <Link to="/confidentialite" className={styles.legal}>
+        Politique de confidentialité
+      </Link>
     </main>
   );
 }
