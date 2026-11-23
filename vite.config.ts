@@ -47,8 +47,8 @@ export default defineConfig({
       manifest: {
         id: '/',
         scope: '/',
-        name: 'ParkFinder',
-        short_name: 'ParkFinder',
+        name: 'PlaceGratos',
+        short_name: 'PlaceGratos',
         description: 'Trouvez un parking gratuit près de vous.',
         lang: 'fr',
         start_url: '/',
