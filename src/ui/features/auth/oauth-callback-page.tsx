@@ -15,7 +15,7 @@ export function OAuthCallbackPage() {
     >
       <p className={styles.formError} role="alert">
         Réessayez, ou connectez-vous avec votre email. Si le problème persiste, vérifiez que les
-        cookies ne sont pas bloqués pour ParkFinder.
+        cookies ne sont pas bloqués pour PlaceGratos.
       </p>
       <Link to="/login" className={styles.textLink}>
         Retour à la connexion

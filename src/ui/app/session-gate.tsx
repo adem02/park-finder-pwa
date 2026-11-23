@@ -43,7 +43,7 @@ export function SessionGate({ router }: { router: AppRouter }) {
 
   if (session.isPending) {
     return (
-      <div className={styles.splash} role="status" aria-label="Chargement de ParkFinder">
+      <div className={styles.splash} role="status" aria-label="Chargement de PlaceGratos">
         <ParkingIcon className={styles.logo} width={48} height={48} />
       </div>
     );

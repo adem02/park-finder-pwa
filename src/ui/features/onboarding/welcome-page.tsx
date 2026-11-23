@@ -54,7 +54,7 @@ export function WelcomePage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <span className={styles.brand}>ParkFinder</span>
+        <span className={styles.brand}>PlaceGratos</span>
         {!isLast && (
           <button type="button" className={styles.skip} onClick={() => finish('/login')}>
             Passer
@@ -66,7 +66,7 @@ export function WelcomePage() {
         ref={trackRef}
         className={styles.track}
         aria-roledescription="carrousel"
-        aria-label="Présentation de ParkFinder"
+        aria-label="Présentation de PlaceGratos"
         onScroll={(event) => {
           const track = event.currentTarget;
           if (track.clientWidth > 0) setIndex(Math.round(track.scrollLeft / track.clientWidth));
