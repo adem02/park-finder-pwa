@@ -1,0 +1,64 @@
+.page {
+  min-height: 100%;
+  padding: calc(var(--safe-top) + var(--offline-banner-height, 0px) + var(--space-lg))
+    calc(var(--safe-right) + var(--space-md)) calc(var(--safe-bottom) + var(--space-xl))
+    calc(var(--safe-left) + var(--space-md));
+  background: var(--color-background);
+}
+
+/* Texte long : une colonne de lecture confortable, titres de section espacés. */
+.content {
+  max-width: 680px;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-lg);
+  font: var(--text-body);
+  color: var(--color-text-primary);
+}
+
+.content h2 {
+  margin: 0 0 var(--space-sm);
+  font: var(--text-section-title);
+}
+
+.content p,
+.content ul {
+  margin: 0;
+}
+
+.content ul {
+  display: grid;
+  gap: var(--space-sm);
+  padding-left: 1.2em;
+}
+
+.content section > p + p,
+.content section > ul + p {
+  margin-top: var(--space-sm);
+}
+
+.content a {
+  color: var(--color-primary);
+  overflow-wrap: anywhere;
+}
+
+.back {
+  justify-self: start;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.header {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.title {
+  margin: 0;
+  font: var(--text-page-title);
+}
+
+.updated {
+  color: var(--color-text-secondary);
+  font: var(--text-caption);
+}

@@ -35,10 +35,15 @@ export function SessionGate({ router }: { router: AppRouter }) {
     });
   }, [router, queryClient, session.isSuccess, userId]);
 
-  // Démarrage hors ligne : on retente dès que le réseau revient.
+  // Démarrage hors ligne : on retente une fois, au retour du réseau. Seulement à ce moment-là :
+  // relancer la requête la repasse en chargement puis en erreur, et un effet qui réagirait à
+  // l'erreur seule la relancerait en boucle (API injoignable, CORS refusé…).
   const { refetch, isError } = session;
+  const wasOnline = useRef(isOnline);
   useEffect(() => {
-    if (isOnline && isError) void refetch();
+    const backOnline = isOnline && !wasOnline.current;
+    wasOnline.current = isOnline;
+    if (backOnline && isError) void refetch();
   }, [isOnline, isError, refetch]);
 
   if (session.isPending) {

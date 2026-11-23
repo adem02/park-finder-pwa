@@ -35,6 +35,10 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
 
         {children}
       </div>
+
+      <Link to="/confidentialite" className={styles.legal}>
+        Confidentialité
+      </Link>
     </main>
   );
 }

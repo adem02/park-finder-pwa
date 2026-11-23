@@ -15,6 +15,7 @@ import { OAuthCallbackPage } from '../features/auth/oauth-callback-page';
 import { isOAuthErrorCode, type OAuthErrorCode } from '../features/auth/oauth-error';
 import { validateRedirectSearch } from '../features/auth/redirect-search';
 import { RegisterPage } from '../features/auth/register-page';
+import { PrivacyPage } from '../features/legal/privacy-page';
 import { MapPage } from '../features/map/map-page';
 import { OnboardingProgress } from '../features/onboarding/onboarding-progress';
 import { WelcomePage } from '../features/onboarding/welcome-page';
@@ -39,6 +40,15 @@ export interface RouterContext {
 export const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
   notFoundComponent: NotFound,
+});
+
+/* ---------- Pages publiques, avec ou sans session ---------- */
+
+/** Politique de confidentialité : lien exigé par Google, lisible sans compte. */
+const privacyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/confidentialite',
+  component: PrivacyPage,
 });
 
 /* ---------- Écrans sans compte : onboarding, connexion, inscription ---------- */
@@ -180,6 +190,7 @@ const parkingCommentsRoute = createRoute({
 });
 
 export const routeTree = rootRoute.addChildren([
+  privacyRoute,
   guestRoute.addChildren([welcomeRoute, loginRoute, registerRoute, oauthCallbackRoute]),
   appRoute.addChildren([
     tabsRoute.addChildren([mapRoute, listRoute, profileRoute]),

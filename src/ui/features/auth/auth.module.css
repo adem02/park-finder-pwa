@@ -170,3 +170,8 @@
   font-weight: 600;
   color: var(--color-primary);
 }
+
+.legal {
+  font: var(--text-caption);
+  color: var(--color-text-secondary);
+}
