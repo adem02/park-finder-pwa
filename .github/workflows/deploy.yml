@@ -27,7 +27,7 @@ jobs:
     name: deploy
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Variable API_URL dans Settings → Environments → production.
+    # Variables API_URL et APP_URL dans Settings → Environments → production.
     environment: production
     steps:
       - uses: actions/checkout@v5
@@ -41,11 +41,16 @@ jobs:
         run: npm ci
 
       # Build de prod branché sur l'API (et non sur les données de démo).
+      # APP_URL = adresse publique (https://placegratos.fr) : les domaines Firebase par défaut
+      # y redirigent, sinon le cookie de session (même site que l'API) ne passerait pas.
       - name: Build
-        run: npm run build
+        run: |
+          if [ -z "$VITE_CANONICAL_ORIGIN" ]; then echo "APP_URL is not set."; exit 1; fi
+          npm run build
         env:
           VITE_DATA_SOURCE: api
           VITE_API_URL: ${{ vars.API_URL }}
+          VITE_CANONICAL_ORIGIN: ${{ vars.APP_URL }}
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -60,4 +65,4 @@ jobs:
         run: |
           curl --fail --silent --show-error --output /dev/null \
             --retry 6 --retry-delay 10 --retry-all-errors \
-            "https://${FIREBASE_PROJECT}.web.app/"
+            "${{ vars.APP_URL }}/"
