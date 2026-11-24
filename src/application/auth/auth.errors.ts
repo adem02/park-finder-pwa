@@ -32,4 +32,5 @@ export const API_ERROR_CODES = {
   emailTaken: 'EmailAlreadyInUseException',
   parkingExists: 'ParkingAlreadyExistsException',
   parkingHasContributions: 'ParkingHasContributionsException',
+  parkingPhotosFull: 'ParkingPhotosFullException',
 } as const;

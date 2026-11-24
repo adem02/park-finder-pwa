@@ -18,7 +18,7 @@ export class ParkingDetailsMapper {
         id: dto.id,
         name: dto.name,
         totalSpots: dto.totalSpots,
-        photos: dto.photos,
+        photos: dto.photoItems ?? dto.photos.map((url) => ({ id: url, url, isMine: false })),
         coordinates: coordinates.value,
         addedBy: SharedMapper.toAuthor(dto.addedBy),
         availability: SharedMapper.toAvailability(dto.availability),

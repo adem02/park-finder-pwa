@@ -260,3 +260,56 @@
 .deleteError {
   color: var(--color-danger);
 }
+
+.slide {
+  position: relative;
+}
+
+.removePhoto {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+}
+
+.addPhotos {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.addPhotoButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+  cursor: pointer;
+}
+
+.addPhotoButton[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.addPhotoButton:has(.fileInput:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Champ fichier invisible mais cliquable et focusable, posé sur son libellé. */
+.fileInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.photoError {
+  margin: 0;
+  color: var(--color-danger);
+  font: var(--text-caption);
+}

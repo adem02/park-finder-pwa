@@ -9,6 +9,8 @@ import { Coordinates, type CoordinatesSnapshot } from '../geo/coordinates';
 import type { Result } from '../shared/result';
 import { Author, type AuthorSnapshot } from '../user/author';
 import { ParkingVotes, type ParkingVotesSnapshot } from '../vote/parking-votes';
+import { PARKING_MAX_PHOTOS } from './new-parking';
+import type { ParkingPhoto } from './parking-photo';
 import type { ParkingId } from './parking-summary';
 import type { PinState } from './pin-state';
 
@@ -19,7 +21,7 @@ export interface ParkingDetailsProps {
   readonly id: ParkingId;
   readonly name: string;
   readonly totalSpots: number;
-  readonly photos: readonly string[];
+  readonly photos: readonly ParkingPhoto[];
   readonly coordinates: Coordinates;
   readonly addedBy: Author;
   readonly availability: Availability;
@@ -32,7 +34,7 @@ export interface ParkingDetailsSnapshot {
   readonly id: ParkingId;
   readonly name: string;
   readonly totalSpots: number;
-  readonly photos: readonly string[];
+  readonly photos: readonly ParkingPhoto[];
   readonly coordinates: CoordinatesSnapshot;
   readonly addedBy: AuthorSnapshot;
   readonly availability: AvailabilitySnapshot;
@@ -76,8 +78,13 @@ export class ParkingDetails {
     return this.props.totalSpots;
   }
 
-  get photos(): readonly string[] {
+  get photos(): readonly ParkingPhoto[] {
     return this.props.photos;
+  }
+
+  /** Places libres pour de nouvelles photos (3 au plus par parking). */
+  get remainingPhotoSlots(): number {
+    return Math.max(0, PARKING_MAX_PHOTOS - this.props.photos.length);
   }
 
   get coordinates(): Coordinates {
