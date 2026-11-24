@@ -1,4 +1,5 @@
 import { Login } from '@application/auth/login.use-case';
+import { DeleteAccount } from '@application/auth/delete-account.use-case';
 import { Logout } from '@application/auth/logout.use-case';
 import { Register } from '@application/auth/register.use-case';
 import { RestoreSession } from '@application/auth/restore-session.use-case';
@@ -103,6 +104,7 @@ export function createContainer(env: Env): AppContainer {
       register: new Register(gateways.auth),
       restoreSession: new RestoreSession(gateways.auth),
       logout: new Logout(gateways.auth),
+      deleteAccount: new DeleteAccount(gateways.auth),
       findNearbyParkings: new FindNearbyParkings(gateways.parkings),
       getParkingDetails: new GetParkingDetails(gateways.parkings),
       addParking: new AddParking(gateways.parkings),

@@ -3,7 +3,7 @@ import styles from './privacy-page.module.css';
 
 /** Contact pour exercer ses droits (RGPD). Une seule adresse à changer ici. */
 export const PRIVACY_CONTACT = 'demahmed02@gmail.com';
-const UPDATED_ON = '23 novembre 2026';
+const UPDATED_ON = '24 novembre 2026';
 
 /**
  * Politique de confidentialité, publique (sans compte) : exigée par le RGPD et par Google
@@ -86,7 +86,12 @@ export function PrivacyPage() {
             </li>
             <li>Sauvegardes chiffrées de la base : 30 jours.</li>
           </ul>
-          <p>Pour supprimer votre compte et vos données, écrivez à {mail}.</p>
+          <p>
+            Vous pouvez supprimer votre compte à tout moment depuis votre profil. Votre e-mail, votre
+            pseudo, vos points, vos badges et vos commentaires sont alors effacés. Les parkings que
+            vous avez ajoutés restent sur la carte, au nom de PlaceGratos, et vos votes et
+            signalements sont conservés sans aucun lien avec vous. Vous pouvez aussi écrire à {mail}.
+          </p>
         </section>
 
         <section>

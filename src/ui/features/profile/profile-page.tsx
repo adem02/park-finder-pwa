@@ -8,6 +8,7 @@ import { formatPoints, formatRank } from '../../format/format-rank';
 import { useCountUp } from '../../hooks/use-count-up';
 import { useLogout } from '../auth/use-session';
 import { nearbyErrorMessage } from '../search/messages';
+import { DeleteAccount } from './delete-account';
 import { useMyProfile } from './use-profile';
 import styles from './profile.module.css';
 
@@ -50,6 +51,8 @@ export function ProfilePage({ user }: ProfilePageProps) {
       <Button variant="secondary" block loading={logout.isPending} onClick={() => logout.mutate()}>
         Se déconnecter
       </Button>
+
+      <DeleteAccount />
 
       <Link to="/confidentialite" className={styles.legal}>
         Politique de confidentialité

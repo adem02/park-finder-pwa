@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { CurrentUser } from '@domain/user/current-user';
 import { DEMO_USER } from '@infrastructure/in-memory/in-memory-parking.store';
 import { LeaderboardPage } from '@ui/features/profile/leaderboard-page';
 import { ProfilePage } from '@ui/features/profile/profile-page';
+import { sessionKeys } from '@ui/query/query-keys';
 import { aRecord } from '../../support/parking.builder';
 import { createTestContainer, renderInApp } from '../../support/render-in-app';
 
@@ -52,5 +53,32 @@ describe('LeaderboardPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mois précédent' }));
 
     expect(screen.getByRole('button', { name: 'Mois suivant' })).toBeEnabled();
+  });
+});
+
+describe('Suppression du compte', () => {
+  it('demande confirmation, supprime le compte puis ferme la session', async () => {
+    const { container, auth } = createTestContainer([]);
+    const { queryClient } = renderInApp(<ProfilePage user={me} />, container);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Supprimer mon compte' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Supprimer votre compte ?' });
+    expect(within(sheet).getByText(/resteront sur la carte, au nom de PlaceGratos/)).toBeInTheDocument();
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Supprimer définitivement' }));
+
+    await waitFor(() => expect(queryClient.getQueryData(sessionKeys.current)).toBeNull());
+    expect((await auth.resume()).ok).toBe(false);
+    expect(await screen.findByText('Votre compte a été supprimé.')).toBeInTheDocument();
+  });
+
+  it('ne supprime rien si on annule', async () => {
+    const { container, auth } = createTestContainer([]);
+    renderInApp(<ProfilePage user={me} />, container);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Supprimer mon compte' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Supprimer votre compte ?' });
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Annuler' }));
+
+    expect((await auth.resume()).ok).toBe(true);
   });
 });

@@ -10,6 +10,7 @@ import {
 import { render } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { Login } from '@application/auth/login.use-case';
+import { DeleteAccount } from '@application/auth/delete-account.use-case';
 import { Logout } from '@application/auth/logout.use-case';
 import { Register } from '@application/auth/register.use-case';
 import { RestoreSession } from '@application/auth/restore-session.use-case';
@@ -70,6 +71,7 @@ export function createTestContainer(
       register: new Register(auth),
       restoreSession: new RestoreSession(auth),
       logout: new Logout(auth),
+      deleteAccount: new DeleteAccount(auth),
       findNearbyParkings: new FindNearbyParkings(parkings),
       getParkingDetails: new GetParkingDetails(parkings),
       addParking: new AddParking(parkings),
