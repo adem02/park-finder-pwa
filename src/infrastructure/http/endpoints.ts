@@ -14,6 +14,9 @@ export const Endpoints = {
     nearby: '/parkings',
     add: '/parkings/new',
     details: (id: string) => `/parkings/${encodeURIComponent(id)}`,
+    photos: (id: string) => `/parkings/${encodeURIComponent(id)}/photos`,
+    photo: (id: string, photoId: string) =>
+      `/parkings/${encodeURIComponent(id)}/photos/${encodeURIComponent(photoId)}`,
     report: (id: string) => `/parkings/${encodeURIComponent(id)}/report`,
     vote: (id: string) => `/parkings/${encodeURIComponent(id)}/vote`,
     comments: (id: string) => `/parkings/${encodeURIComponent(id)}/comments`,

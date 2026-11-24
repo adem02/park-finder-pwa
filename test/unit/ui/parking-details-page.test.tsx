@@ -111,3 +111,41 @@ describe('Suppression du parking par son auteur', () => {
     expect(screen.queryByRole('button', { name: 'Supprimer ce parking' })).not.toBeInTheDocument();
   });
 });
+
+describe('Photos d’un parking existant', () => {
+  const file = (name: string) => new File(['photo'], name, { type: 'image/jpeg' });
+
+  it('ajoute une photo et annonce les points gagnés', async () => {
+    const { store } = renderDetails(aRecord({ id: 'p1', photos: [] }));
+
+    const input = await screen.findByLabelText('Ajouter des photos');
+    fireEvent.change(input, { target: { files: [file('entree.jpg')] } });
+
+    expect(await screen.findByText('Photo ajoutée : +5 points')).toBeInTheDocument();
+    expect(store.find('p1')?.photos).toEqual(['blob:fake/entree.jpg']);
+    expect(await screen.findByRole('img', { name: /photo 1 sur 1/ })).toBeInTheDocument();
+  });
+
+  it('retire une photo qu’on a postée, après confirmation', async () => {
+    const { store } = renderDetails(
+      aRecord({ id: 'p1', photos: ['https://cdn/mine.jpg'], myPhotos: ['https://cdn/mine.jpg'] }),
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Retirer ma photo' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Retirer votre photo ?' });
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Retirer la photo' }));
+
+    await waitFor(() => expect(store.find('p1')?.photos).toEqual([]));
+    expect(await screen.findByText('Photo retirée.')).toBeInTheDocument();
+  });
+
+  it('ne propose de retirer que ses propres photos, et plus d’ajout à 3 photos', async () => {
+    renderDetails(
+      aRecord({ id: 'p1', name: 'Parking Erlon', photos: ['https://cdn/a.jpg', 'https://cdn/b.jpg', 'https://cdn/c.jpg'] }),
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Parking Erlon', level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retirer ma photo' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Ajouter des photos')).not.toBeInTheDocument();
+  });
+});

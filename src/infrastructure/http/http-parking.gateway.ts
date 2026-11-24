@@ -92,6 +92,20 @@ export class HttpParkingGateway implements ParkingGateway {
     return ok(parsed.data.id);
   }
 
+  async addPhotos(id: ParkingId, photos: readonly PreparedPhoto[]): Promise<Result<void, GatewayError>> {
+    const form = new FormData();
+    for (const photo of photos) form.append('photos', photo.blob, photo.fileName);
+    const response = await this.http.postForm(Endpoints.parkings.photos(id), form, {
+      timeoutMs: UPLOAD_TIMEOUT_MS,
+    });
+    return response.ok ? ok(undefined) : response;
+  }
+
+  async removePhoto(id: ParkingId, photoId: string): Promise<Result<void, GatewayError>> {
+    const response = await this.http.delete(Endpoints.parkings.photo(id, photoId));
+    return response.ok ? ok(undefined) : response;
+  }
+
   async delete(id: ParkingId): Promise<Result<void, GatewayError>> {
     const response = await this.http.delete(Endpoints.parkings.details(id));
     return response.ok ? ok(undefined) : response;

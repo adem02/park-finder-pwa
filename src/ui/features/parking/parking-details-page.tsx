@@ -18,6 +18,7 @@ import { formatDistance } from '../../format/format-distance';
 import { useNow } from '../../hooks/use-now';
 import { useSession } from '../auth/use-session';
 import { useUserLocation } from '../location/use-user-location';
+import { AddPhotos } from './add-photos';
 import { CommentItem } from './comment-item';
 import { DeleteParking } from './delete-parking';
 import { DirectionsSheet } from './directions-sheet';
@@ -107,9 +108,11 @@ export function ParkingDetailsPage({ parkingId }: { parkingId: ParkingId }) {
         <BackButton />
       </div>
 
-      <PhotosCarousel photos={parking.photos} name={parking.name} />
+      <PhotosCarousel parkingId={parking.id} photos={parking.photos} name={parking.name} />
 
       <div className={styles.body}>
+        <AddPhotos parking={parking} />
+
         <header className={styles.titleBlock}>
           <h1 className={styles.title}>{parking.name}</h1>
           <div className={styles.tags}>
