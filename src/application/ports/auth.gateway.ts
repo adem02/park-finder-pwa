@@ -13,4 +13,6 @@ export interface AuthGateway {
   /** Reprend la session existante (après un rechargement). `UnauthorizedError` s'il n'y en a pas. */
   resume(): Promise<Result<CurrentUser, GatewayError>>;
   logout(): Promise<Result<void, GatewayError>>;
+  /** Supprime le compte connecté (anonymisé côté serveur) et termine la session. */
+  deleteAccount(): Promise<Result<void, GatewayError>>;
 }

@@ -25,7 +25,13 @@ function renderWithUnreachableApi() {
   const resume = vi.fn<AuthGateway['resume']>(() =>
     Promise.resolve(err(new NetworkError('unreachable'))),
   );
-  const auth: AuthGateway = { resume, login: vi.fn(), register: vi.fn(), logout: vi.fn() };
+  const auth: AuthGateway = {
+    resume,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    deleteAccount: vi.fn(),
+  };
   const { container } = createTestContainer([]);
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 

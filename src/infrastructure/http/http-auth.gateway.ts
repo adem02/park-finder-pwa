@@ -49,6 +49,14 @@ export class HttpAuthGateway implements AuthGateway {
     }
   }
 
+  async deleteAccount(): Promise<Result<void, GatewayError>> {
+    const response = await this.session.http.delete(Endpoints.users.me);
+    if (!response.ok) return response;
+    // Le serveur a révoqué les sessions et effacé le cookie : l'access token ne doit plus servir.
+    this.session.tokens.clear();
+    return ok(undefined);
+  }
+
   private async authenticate(
     path: string,
     body: Record<string, string>,

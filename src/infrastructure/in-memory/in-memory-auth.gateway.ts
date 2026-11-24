@@ -71,6 +71,14 @@ export class InMemoryAuthGateway implements AuthGateway {
     this.current = null;
     return Promise.resolve(ok(undefined));
   }
+
+  deleteAccount(): Promise<Result<void, GatewayError>> {
+    if (!this.current) return Promise.resolve(err(new UnauthorizedError()));
+    const email = this.current.email;
+    if (email) this.accounts.delete(email);
+    this.current = null;
+    return Promise.resolve(ok(undefined));
+  }
 }
 
 /** La démo n'expire jamais. */

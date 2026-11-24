@@ -1,4 +1,5 @@
 import type { Login } from '@application/auth/login.use-case';
+import type { DeleteAccount } from '@application/auth/delete-account.use-case';
 import type { Logout } from '@application/auth/logout.use-case';
 import type { Register } from '@application/auth/register.use-case';
 import type { RestoreSession } from '@application/auth/restore-session.use-case';
@@ -23,6 +24,7 @@ export interface UseCases {
   readonly register: Register;
   readonly restoreSession: RestoreSession;
   readonly logout: Logout;
+  readonly deleteAccount: DeleteAccount;
   readonly findNearbyParkings: FindNearbyParkings;
   readonly getParkingDetails: GetParkingDetails;
   readonly addParking: AddParking;

@@ -82,6 +82,16 @@ export function useLogout() {
   });
 }
 
+/** Supprime le compte puis ferme la session : les routes protégées renvoient vers la connexion. */
+export function useDeleteAccount() {
+  const { deleteAccount } = useUseCases();
+  const signedOut = useSignedOut();
+  return useMutation({
+    mutationFn: () => unwrap(deleteAccount.execute()),
+    onSuccess: signedOut,
+  });
+}
+
 /** Session expirée en cours d'utilisation (refresh refusé) : retour à la connexion, avec un mot d'explication. */
 export function useSessionExpiry(): void {
   const { sessionExpiry } = useContainer();
