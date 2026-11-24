@@ -41,6 +41,7 @@ function fakeApi({ refreshAllowed = true } = {}) {
     if (call.path === '/auth/logout') return Promise.resolve(new Response(null, { status: 204 }));
     const authorized = call.authorization === `Bearer ${validToken}`;
     if (!authorized) return Promise.resolve(json({ message: 'Unauthorized' }, 401));
+    if (call.path === '/users/me' && call.method === 'DELETE') return Promise.resolve(new Response(null, { status: 204 }));
     if (call.path === '/users/me') return Promise.resolve(json({ user: USER, stats: {} }));
     return Promise.resolve(json({ parkings: [] }));
   });
@@ -155,5 +156,30 @@ describe('HttpSession + HttpAuthGateway', () => {
     await auth.logout();
 
     expect(session.tokens.get()).toBeNull();
+  });
+
+  it('supprime le compte avec DELETE /users/me puis oublie l’access token', async () => {
+    const api = fakeApi();
+    const { session, auth } = setup(api);
+    await auth.login(credentials());
+
+    const result = await auth.deleteAccount();
+
+    expect(result.ok).toBe(true);
+    const call = api.calls.find((c) => c.method === 'DELETE');
+    expect(call).toMatchObject({ path: '/users/me', authorization: 'Bearer token-0' });
+    expect(session.tokens.get()).toBeNull();
+  });
+
+  it('garde la session si la suppression échoue', async () => {
+    const api = fakeApi();
+    const { session, auth } = setup(api);
+    await auth.login(credentials());
+    api.fetchFn.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+    const result = await auth.deleteAccount();
+
+    expect(result.ok).toBe(false);
+    expect(session.tokens.get()).toBe('token-0');
   });
 });
