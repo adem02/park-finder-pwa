@@ -36,7 +36,7 @@ describe('ParkingDetails', () => {
 
   it('survit à un aller-retour JSON par son snapshot', () => {
     const parking = someParkingDetails({
-      photos: ['https://res.cloudinary.com/demo/a.jpg'],
+      photos: [{ id: 'ph-1', url: 'https://res.cloudinary.com/demo/a.jpg', isMine: true }],
       availability: Availability.reported(7, minutesAgo(12)),
       votes: ParkingVotes.of(3, 1, 'DOWNVOTE'),
       recentComments: [aComment()],
@@ -50,5 +50,13 @@ describe('ParkingDetails', () => {
     expect(restored.pinState(NOW)).toBe('stale');
     expect(restored.votes.userVote).toBe('DOWNVOTE');
     expect(restored.recentComments[0]?.author.initial).toBe('C');
+  });
+
+  it('compte les places restantes pour des photos (3 au plus)', () => {
+    const photo = (id: string) => ({ id, url: `https://cdn/${id}.jpg`, isMine: false });
+
+    expect(someParkingDetails({ photos: [] }).remainingPhotoSlots).toBe(3);
+    expect(someParkingDetails({ photos: [photo('a'), photo('b')] }).remainingPhotoSlots).toBe(1);
+    expect(someParkingDetails({ photos: [photo('a'), photo('b'), photo('c')] }).remainingPhotoSlots).toBe(0);
   });
 });

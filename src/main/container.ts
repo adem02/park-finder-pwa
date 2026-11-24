@@ -4,7 +4,9 @@ import { Logout } from '@application/auth/logout.use-case';
 import { Register } from '@application/auth/register.use-case';
 import { RestoreSession } from '@application/auth/restore-session.use-case';
 import { AddParking } from '@application/parking/add-parking.use-case';
+import { AddParkingPhotos } from '@application/parking/add-parking-photos.use-case';
 import { DeleteParking } from '@application/parking/delete-parking.use-case';
+import { RemoveParkingPhoto } from '@application/parking/remove-parking-photo.use-case';
 import { PreparePhoto } from '@application/parking/prepare-photo.use-case';
 import { GetLeaderboard } from '@application/profile/get-leaderboard.use-case';
 import { GetMyProfile } from '@application/profile/get-my-profile.use-case';
@@ -110,6 +112,8 @@ export function createContainer(env: Env): AppContainer {
       getParkingDetails: new GetParkingDetails(gateways.parkings),
       addParking: new AddParking(gateways.parkings),
       deleteParking: new DeleteParking(gateways.parkings),
+      addParkingPhotos: new AddParkingPhotos(gateways.parkings),
+      removeParkingPhoto: new RemoveParkingPhoto(gateways.parkings),
       getMyProfile: new GetMyProfile(gateways.profiles),
       getLeaderboard: new GetLeaderboard(gateways.profiles, clock),
       preparePhoto: new PreparePhoto(new CanvasPhotoProcessor()),

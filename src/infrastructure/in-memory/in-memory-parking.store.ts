@@ -15,6 +15,8 @@ export interface DemoParkingRecord {
   readonly name: string;
   readonly totalSpots: number;
   readonly photos: readonly string[];
+  /** Photos postées par DEMO_USER (retirables) ; les autres viennent de la communauté. */
+  readonly myPhotos?: readonly string[];
   readonly coordinates: Coordinates;
   readonly addedBy: Author;
   readonly availability: Availability;
@@ -105,7 +107,11 @@ export class InMemoryParkingStore {
       id: record.id,
       name: record.name,
       totalSpots: record.totalSpots,
-      photos: record.photos,
+      photos: record.photos.map((url) => ({
+        id: url,
+        url,
+        isMine: record.myPhotos?.includes(url) ?? false,
+      })),
       coordinates: record.coordinates,
       addedBy: record.addedBy,
       availability: record.availability,

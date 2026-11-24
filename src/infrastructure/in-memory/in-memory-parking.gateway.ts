@@ -5,7 +5,11 @@ import type { NearbyQuery, ParkingGateway } from '@application/ports/parking.gat
 import type { PreparedPhoto } from '@application/ports/photo-processor.port';
 import { Availability } from '@domain/availability/availability';
 import type { SpotCount } from '@domain/availability/spot-count';
-import { DUPLICATE_PARKING_RADIUS_METERS, type NewParking } from '@domain/parking/new-parking';
+import {
+  DUPLICATE_PARKING_RADIUS_METERS,
+  PARKING_MAX_PHOTOS,
+  type NewParking,
+} from '@domain/parking/new-parking';
 import type { ParkingDetails } from '@domain/parking/parking-details';
 import type { ParkingId, ParkingSummary } from '@domain/parking/parking-summary';
 import { err, ok, type Result } from '@domain/shared/result';
@@ -65,6 +69,7 @@ export class InMemoryParkingGateway implements ParkingGateway {
       totalSpots: parking.totalSpots,
       // En démo, les aperçus locaux tiennent lieu de photos hébergées.
       photos: photos.map((photo) => photo.previewUrl),
+      myPhotos: photos.map((photo) => photo.previewUrl),
       coordinates: parking.coordinates,
       addedBy: DEMO_USER,
       availability: Availability.none(),
@@ -75,6 +80,40 @@ export class InMemoryParkingGateway implements ParkingGateway {
       createdAt: this.clock.now(),
     });
     return Promise.resolve(ok(id));
+  }
+
+  /** Comme l'API : 3 photos au plus en tout (409 ParkingPhotosFullException). */
+  addPhotos(id: ParkingId, photos: readonly PreparedPhoto[]): Promise<Result<void, GatewayError>> {
+    const record = this.store.find(id);
+    if (!record) return Promise.resolve(err(new NotFoundError()));
+    if (record.photos.length + photos.length > PARKING_MAX_PHOTOS) {
+      return Promise.resolve(
+        err(
+          new ConflictError(
+            'This parking already has the maximum number of photos.',
+            API_ERROR_CODES.parkingPhotosFull,
+          ),
+        ),
+      );
+    }
+    const urls = photos.map((photo) => photo.previewUrl);
+    this.store.update(id, {
+      photos: [...record.photos, ...urls],
+      myPhotos: [...(record.myPhotos ?? []), ...urls],
+    });
+    return Promise.resolve(ok(undefined));
+  }
+
+  /** En mémoire, l'id d'une photo est son URL. */
+  removePhoto(id: ParkingId, photoId: string): Promise<Result<void, GatewayError>> {
+    const record = this.store.find(id);
+    if (!record || !record.photos.includes(photoId)) return Promise.resolve(err(new NotFoundError()));
+    if (!record.myPhotos?.includes(photoId)) return Promise.resolve(err(new ServerError(403)));
+    this.store.update(id, {
+      photos: record.photos.filter((url) => url !== photoId),
+      myPhotos: record.myPhotos.filter((url) => url !== photoId),
+    });
+    return Promise.resolve(ok(undefined));
   }
 
   /** Comme l'API : auteur seulement (403), et tant que personne d'autre n'a voté ni commenté (409). */

@@ -12,6 +12,8 @@ export const parkingDetailsDtoSchema = z.object({
   name: z.string(),
   totalSpots: z.number().int().nonnegative(),
   photos: z.array(z.string()),
+  /** Mêmes photos avec leur id et leur auteur (absent des API antérieures au registre des photos). */
+  photoItems: z.array(z.object({ id: z.string(), url: z.string(), isMine: z.boolean() })).optional(),
   coordinates: coordinatesDtoSchema,
   addedBy: authorDtoSchema,
   availability: availabilityDtoSchema,

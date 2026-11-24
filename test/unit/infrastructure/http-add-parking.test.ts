@@ -64,3 +64,30 @@ describe('HttpParkingGateway.add', () => {
     );
   });
 });
+
+describe('HttpParkingGateway : photos d’un parking existant', () => {
+  it('envoie les photos en multipart vers /parkings/:id/photos', async () => {
+    const fetchFn = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(JSON.stringify({ photos: [] }), { status: 201 }));
+
+    const result = await gatewayWith(fetchFn).addPhotos('p1', [photo]);
+
+    expect(result.ok).toBe(true);
+    const [url, init] = fetchFn.mock.calls[0] ?? [];
+    expect(url).toBe(`${BASE}/parkings/p1/photos`);
+    expect(init?.method).toBe('POST');
+    expect(((init?.body as FormData).getAll('photos')[0] as File).name).toBe('entree.jpg');
+  });
+
+  it('retire une photo avec DELETE /parkings/:id/photos/:photoId', async () => {
+    const fetchFn = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 204 }));
+
+    const result = await gatewayWith(fetchFn).removePhoto('p1', 'ph-9');
+
+    expect(result.ok).toBe(true);
+    const [url, init] = fetchFn.mock.calls[0] ?? [];
+    expect(url).toBe(`${BASE}/parkings/p1/photos/ph-9`);
+    expect(init?.method).toBe('DELETE');
+  });
+});

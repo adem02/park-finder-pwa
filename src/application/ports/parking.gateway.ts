@@ -28,6 +28,12 @@ export interface ParkingGateway {
   /** Crée le parking avec ses photos (0 à 3) ; rend son identifiant. */
   add(parking: NewParking, photos: readonly PreparedPhoto[]): Promise<Result<ParkingId, GatewayError>>;
 
+  /** Ajoute des photos à un parking existant (3 au plus en tout). */
+  addPhotos(id: ParkingId, photos: readonly PreparedPhoto[]): Promise<Result<void, GatewayError>>;
+
+  /** Retire une photo postée par l'utilisateur. */
+  removePhoto(id: ParkingId, photoId: string): Promise<Result<void, GatewayError>>;
+
   /** Retire un parking de son auteur (refusé par l'API si d'autres y ont contribué). */
   delete(id: ParkingId): Promise<Result<void, GatewayError>>;
 }
