@@ -31,4 +31,5 @@ export const API_ERROR_CODES = {
   usernameTaken: 'UsernameAlreadyTakenException',
   emailTaken: 'EmailAlreadyInUseException',
   parkingExists: 'ParkingAlreadyExistsException',
+  parkingHasContributions: 'ParkingHasContributionsException',
 } as const;

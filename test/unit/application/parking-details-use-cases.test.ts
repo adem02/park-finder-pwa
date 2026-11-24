@@ -80,6 +80,7 @@ describe('ReportAvailability', () => {
     getDetails: vi.fn<ParkingGateway['getDetails']>(),
     reportAvailability: vi.fn<ParkingGateway['reportAvailability']>().mockResolvedValue(ok(undefined)),
     add: vi.fn<ParkingGateway['add']>(),
+    delete: vi.fn<ParkingGateway['delete']>(),
   });
 
   it('envoie le signalement et renvoie le parking à jour, horodaté par l’horloge', async () => {

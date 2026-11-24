@@ -77,6 +77,10 @@ export class InMemoryParkingStore {
     this.records.set(record.id, record);
   }
 
+  remove(id: ParkingId): void {
+    this.records.delete(id);
+  }
+
   update(id: ParkingId, changes: Partial<Omit<DemoParkingRecord, 'id'>>): void {
     const record = this.records.get(id);
     if (record) this.records.set(id, { ...record, ...changes });
