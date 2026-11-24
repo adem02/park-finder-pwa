@@ -16,8 +16,10 @@ import {
 import { useToast } from '../../components/toast';
 import { formatDistance } from '../../format/format-distance';
 import { useNow } from '../../hooks/use-now';
+import { useSession } from '../auth/use-session';
 import { useUserLocation } from '../location/use-user-location';
 import { CommentItem } from './comment-item';
+import { DeleteParking } from './delete-parking';
 import { DirectionsSheet } from './directions-sheet';
 import { parkingErrorMessage } from './messages';
 import { PhotosCarousel } from './photos-carousel';
@@ -37,6 +39,7 @@ export function ParkingDetailsPage({ parkingId }: { parkingId: ParkingId }) {
   const showToast = useToast();
   const toggleVote = useToggleVote();
   const report = useReportAvailability();
+  const session = useSession();
   const [sheet, setSheet] = useState<'report' | 'directions' | null>(null);
 
   const parking = details.data;
@@ -181,6 +184,8 @@ export function ParkingDetailsPage({ parkingId }: { parkingId: ParkingId }) {
             </p>
           )}
         </section>
+
+        {session.data?.id === parking.addedBy.id && <DeleteParking parkingId={parking.id} />}
       </div>
 
       <footer className={styles.footer}>

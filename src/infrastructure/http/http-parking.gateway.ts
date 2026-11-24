@@ -91,4 +91,9 @@ export class HttpParkingGateway implements ParkingGateway {
     if (!parsed.success) return err(new InvalidResponseError(parsed.error.message));
     return ok(parsed.data.id);
   }
+
+  async delete(id: ParkingId): Promise<Result<void, GatewayError>> {
+    const response = await this.http.delete(Endpoints.parkings.details(id));
+    return response.ok ? ok(undefined) : response;
+  }
 }
