@@ -246,3 +246,17 @@
     opacity: 0.5;
   }
 }
+
+.deleteSheet {
+  display: grid;
+  gap: var(--space-sm);
+  font: var(--text-body);
+}
+
+.deleteSheet p {
+  margin: 0;
+}
+
+.deleteError {
+  color: var(--color-danger);
+}

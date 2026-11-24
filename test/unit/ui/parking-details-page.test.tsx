@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { Availability } from '@domain/availability/availability';
+import { DEMO_USER } from '@infrastructure/in-memory/in-memory-parking.store';
 import { ParkingDetailsPage } from '@ui/features/parking/parking-details-page';
 import { aComment, aRecord, minutesAgo } from '../../support/parking.builder';
 import { createTestContainer, renderInApp } from '../../support/render-in-app';
@@ -77,5 +78,36 @@ describe('ParkingDetailsPage (vrais use cases, store en mémoire)', () => {
 
     expect(await screen.findByRole('heading', { name: 'Parking introuvable' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Retour à la carte' })).toBeInTheDocument();
+  });
+});
+
+describe('Suppression du parking par son auteur', () => {
+  it('l’auteur supprime son parking après confirmation', async () => {
+    const { store } = renderDetails(aRecord({ id: 'p1', addedBy: DEMO_USER, upvotes: 0, downvotes: 0 }));
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Supprimer ce parking' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Supprimer ce parking ?' });
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Supprimer le parking' }));
+
+    await waitFor(() => expect(store.find('p1')).toBeUndefined());
+    expect(await screen.findByText('Parking supprimé.')).toBeInTheDocument();
+  });
+
+  it('explique le refus quand d’autres y ont déjà contribué', async () => {
+    const { store } = renderDetails(aRecord({ id: 'p1', addedBy: DEMO_USER, upvotes: 3, downvotes: 0 }));
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Supprimer ce parking' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Supprimer ce parking ?' });
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Supprimer le parking' }));
+
+    expect(await within(sheet).findByRole('alert')).toHaveTextContent(/appartient désormais à la communauté/);
+    expect(store.find('p1')).toBeDefined();
+  });
+
+  it('n’est pas proposée sur le parking de quelqu’un d’autre', async () => {
+    renderDetails(aRecord({ id: 'p1', name: 'Parking Erlon' }));
+
+    expect(await screen.findByRole('heading', { name: 'Parking Erlon', level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Supprimer ce parking' })).not.toBeInTheDocument();
   });
 });

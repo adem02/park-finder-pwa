@@ -9,6 +9,7 @@ import type { PostComment } from '@application/comment/post-comment.use-case';
 import type { LocateUser } from '@application/location/locate-user.use-case';
 import type { GetDirections } from '@application/navigation/get-directions.use-case';
 import type { AddParking } from '@application/parking/add-parking.use-case';
+import type { DeleteParking } from '@application/parking/delete-parking.use-case';
 import type { PreparePhoto } from '@application/parking/prepare-photo.use-case';
 import type { GetLeaderboard } from '@application/profile/get-leaderboard.use-case';
 import type { GetMyProfile } from '@application/profile/get-my-profile.use-case';
@@ -28,6 +29,7 @@ export interface UseCases {
   readonly findNearbyParkings: FindNearbyParkings;
   readonly getParkingDetails: GetParkingDetails;
   readonly addParking: AddParking;
+  readonly deleteParking: DeleteParking;
   readonly getMyProfile: GetMyProfile;
   readonly getLeaderboard: GetLeaderboard;
   readonly preparePhoto: PreparePhoto;

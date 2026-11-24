@@ -1,5 +1,5 @@
 import { API_ERROR_CODES } from '@application/auth/auth.errors';
-import { ConflictError, NotFoundError, type GatewayError } from '@application/errors/gateway.errors';
+import { ConflictError, NotFoundError, ServerError, type GatewayError } from '@application/errors/gateway.errors';
 import type { Clock } from '@application/ports/clock.port';
 import type { NearbyQuery, ParkingGateway } from '@application/ports/parking.gateway';
 import type { PreparedPhoto } from '@application/ports/photo-processor.port';
@@ -75,5 +75,29 @@ export class InMemoryParkingGateway implements ParkingGateway {
       createdAt: this.clock.now(),
     });
     return Promise.resolve(ok(id));
+  }
+
+  /** Comme l'API : auteur seulement (403), et tant que personne d'autre n'a voté ni commenté (409). */
+  delete(id: ParkingId): Promise<Result<void, GatewayError>> {
+    const record = this.store.find(id);
+    if (!record) return Promise.resolve(err(new NotFoundError()));
+    if (record.addedBy.id !== DEMO_USER.id) return Promise.resolve(err(new ServerError(403)));
+
+    const ownVote = record.userVote ? 1 : 0;
+    const othersVoted = record.upvotes + record.downvotes - ownVote > 0;
+    const othersCommented = record.comments.some((comment) => comment.author.id !== DEMO_USER.id);
+    if (othersVoted || othersCommented) {
+      return Promise.resolve(
+        err(
+          new ConflictError(
+            'Other users have contributed to this parking: it can no longer be deleted.',
+            API_ERROR_CODES.parkingHasContributions,
+          ),
+        ),
+      );
+    }
+
+    this.store.remove(id);
+    return Promise.resolve(ok(undefined));
   }
 }
