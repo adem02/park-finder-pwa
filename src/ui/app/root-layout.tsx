@@ -1,6 +1,5 @@
 import { Outlet } from '@tanstack/react-router';
 import { useOnlineStatus } from '../hooks/use-online-status';
-import { UpdatePrompt } from './update-prompt';
 import styles from './root-layout.module.css';
 
 export function RootLayout() {
@@ -14,7 +13,6 @@ export function RootLayout() {
         </p>
       )}
       <Outlet />
-      <UpdatePrompt />
     </div>
   );
 }

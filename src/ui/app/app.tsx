@@ -6,6 +6,7 @@ import type { AppContainer } from './app-container';
 import { ContainerProvider } from './container-context';
 import { createAppRouter } from './router';
 import { SessionGate } from './session-gate';
+import { UpdatePrompt } from './update-prompt';
 
 export function App({ container }: { container: AppContainer }) {
   const [queryClient] = useState(createQueryClient);
@@ -16,6 +17,7 @@ export function App({ container }: { container: AppContainer }) {
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <SessionGate router={router} />
+          <UpdatePrompt />
         </ToastProvider>
       </QueryClientProvider>
     </ContainerProvider>
