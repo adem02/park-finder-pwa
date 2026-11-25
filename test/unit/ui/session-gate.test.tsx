@@ -8,7 +8,7 @@ import type { AuthGateway } from '@application/ports/auth.gateway';
 import { err } from '@domain/shared/result';
 import { ContainerProvider } from '@ui/app/container-context';
 import { createAppRouter } from '@ui/app/router';
-import { SessionGate } from '@ui/app/session-gate';
+import { SessionGate, WAKING_UP_HINT_DELAY_MS } from '@ui/app/session-gate';
 import { ToastProvider } from '@ui/components/toast';
 import { createTestContainer } from '../../support/render-in-app';
 
@@ -76,5 +76,39 @@ describe('SessionGate', () => {
     await waitAMoment();
 
     expect(resume).toHaveBeenCalledTimes(2);
+  });
+
+  it('explique l’attente après quelques secondes de chargement', () => {
+    vi.useFakeTimers();
+    try {
+      const resume = vi.fn<AuthGateway['resume']>(() => new Promise(() => undefined));
+      const auth: AuthGateway = {
+        resume,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        deleteAccount: vi.fn(),
+      };
+      const { container } = createTestContainer([]);
+      render(
+        <ContainerProvider
+          container={{ ...container, useCases: { ...container.useCases, restoreSession: new RestoreSession(auth) } }}
+        >
+          <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+            <ToastProvider>
+              <SessionGate router={createAppRouter()} />
+            </ToastProvider>
+          </QueryClientProvider>
+        </ContainerProvider>,
+      );
+
+      expect(screen.queryByText('Démarrage du serveur…')).not.toBeInTheDocument();
+      act(() => {
+        vi.advanceTimersByTime(WAKING_UP_HINT_DELAY_MS);
+      });
+      expect(screen.getByText('Démarrage du serveur…')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

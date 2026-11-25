@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../components/button';
 import { ParkingIcon } from '../components/icons';
 import { formError } from '../features/auth/messages';
@@ -10,6 +10,18 @@ import type { createAppRouter } from './router';
 import styles from './session-gate.module.css';
 
 type AppRouter = ReturnType<typeof createAppRouter>;
+
+/** Délai après lequel on explique l'attente : au-delà, l'API est sans doute en train de se réveiller. */
+export const WAKING_UP_HINT_DELAY_MS = 3_000;
+
+function WakingUpHint() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), WAKING_UP_HINT_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, []);
+  return visible ? <p className={styles.message}>Démarrage du serveur…</p> : null;
+}
 
 /**
  * Attend de savoir qui est connecté avant de monter le routeur, puis lui passe la session :
@@ -50,6 +62,7 @@ export function SessionGate({ router }: { router: AppRouter }) {
     return (
       <div className={styles.splash} role="status" aria-label="Chargement de PlaceGratos">
         <ParkingIcon className={styles.logo} width={48} height={48} />
+        <WakingUpHint />
       </div>
     );
   }

@@ -182,4 +182,34 @@ describe('HttpSession + HttpAuthGateway', () => {
     expect(result.ok).toBe(false);
     expect(session.tokens.get()).toBe('token-0');
   });
+
+  it('à l’ouverture, retente une fois si l’API se réveille encore (503), puis reprend la session', async () => {
+    let refreshes = 0;
+    const fetchFn = vi.fn<typeof fetch>((input) => {
+      const path = new URL(input as string).pathname;
+      if (path === '/auth/refresh') {
+        refreshes += 1;
+        return Promise.resolve(refreshes === 1 ? json({ message: 'starting' }, 503) : json({ accessToken: 'token-1' }));
+      }
+      return Promise.resolve(json({ user: USER, stats: {} }));
+    });
+    const session = new HttpSession({ baseUrl: BASE, fetchFn, isOnline: () => true }, noLocks);
+    const auth = new HttpAuthGateway(session, () => Promise.resolve());
+
+    const user = await auth.resume();
+
+    expect(user.ok && user.value.username).toBe('camille');
+    expect(refreshes).toBe(2);
+  });
+
+  it('ne retente pas un refus de session (401)', async () => {
+    const api = fakeApi({ refreshAllowed: false });
+    const session = new HttpSession({ baseUrl: BASE, fetchFn: api.fetchFn, isOnline: () => true }, noLocks);
+    const auth = new HttpAuthGateway(session, () => Promise.resolve());
+
+    const user = await auth.resume();
+
+    expect(!user.ok && user.error).toBeInstanceOf(UnauthorizedError);
+    expect(api.refreshCalls()).toBe(1);
+  });
 });
