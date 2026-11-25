@@ -24,44 +24,6 @@
   background: var(--color-text-primary);
 }
 
-.toast {
-  position: fixed;
-  z-index: 30;
-  left: calc(var(--safe-left) + var(--space-md));
-  right: calc(var(--safe-right) + var(--space-md));
-  top: calc(var(--safe-top) + var(--space-md));
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-sm) var(--space-md);
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-  background: var(--color-text-primary);
-  color: var(--color-surface);
-  box-shadow: var(--shadow-floating);
-}
-
-.toast > span {
-  flex: 1;
-}
-
-.toastAction,
-.toastDismiss {
-  border: 0;
-  background: none;
-  cursor: pointer;
-  font-weight: 600;
-  padding: 0;
-}
-
-.toastAction {
-  color: var(--color-primary);
-}
-
-.toastDismiss {
-  color: var(--color-muted);
-}
-
 .notFound {
   height: 100%;
   display: grid;
