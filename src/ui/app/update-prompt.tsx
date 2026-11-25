@@ -1,7 +1,11 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import styles from './root-layout.module.css';
+import styles from './update-prompt.module.css';
 
-/** Propose de recharger quand une nouvelle version du service worker est prête. */
+/**
+ * Propose de recharger quand une nouvelle version du service worker est prête.
+ * Monté hors du routeur : visible aussi sur l'écran de chargement et sur l'erreur de session,
+ * sinon une version qui corrige le démarrage ne pourrait jamais s'installer.
+ */
 export function UpdatePrompt() {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
