@@ -28,16 +28,18 @@ export class TokenRefresher {
     private readonly locks: LockRunner = webLocks,
   ) {}
 
-  refresh(): Promise<Result<string, GatewayError>> {
-    this.inFlight ??= this.locks(LOCK_NAME, () => this.callRefresh()).finally(() => {
+  /** `timeoutMs` : plus long à l'ouverture de l'app, quand l'API peut être en train de se réveiller. */
+  refresh(options: { timeoutMs?: number } = {}): Promise<Result<string, GatewayError>> {
+    this.inFlight ??= this.locks(LOCK_NAME, () => this.callRefresh(options.timeoutMs)).finally(() => {
       this.inFlight = null;
     });
     return this.inFlight;
   }
 
-  private async callRefresh(): Promise<Result<string, GatewayError>> {
+  private async callRefresh(timeoutMs?: number): Promise<Result<string, GatewayError>> {
     const response = await this.http.postJson(Endpoints.auth.refresh, undefined, {
       retryOnUnauthorized: false,
+      timeoutMs,
     });
     if (!response.ok) {
       if (response.error instanceof UnauthorizedError) this.tokens.clear();
