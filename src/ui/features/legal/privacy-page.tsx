@@ -2,8 +2,8 @@ import { Link } from '@tanstack/react-router';
 import styles from './privacy-page.module.css';
 
 /** Contact pour exercer ses droits (RGPD). Une seule adresse à changer ici. */
-export const PRIVACY_CONTACT = 'demahmed02@gmail.com';
-const UPDATED_ON = '24 novembre 2026';
+export const PRIVACY_CONTACT = 'almahtec@gmail.com';
+const UPDATED_ON = '26 novembre 2026';
 
 /**
  * Politique de confidentialité, publique (sans compte) : exigée par le RGPD et par Google
@@ -58,6 +58,11 @@ export function PrivacyPage() {
               est envoyée au serveur le temps de la recherche et n’est pas enregistrée dans notre
               base.
             </li>
+            <li>
+              <strong>Journaux techniques</strong> : pour chaque appel au serveur, l’adresse appelée
+              (sans votre position), l’heure, le résultat, la durée et le type de navigateur (« user
+              agent »). Ni adresse IP ni identifiant de compte.
+            </li>
           </ul>
         </section>
 
@@ -69,7 +74,8 @@ export function PrivacyPage() {
               nécessaire au service que vous utilisez.
             </li>
             <li>
-              Sécurité (limitation des tentatives de connexion, prévention des abus, sauvegardes) :
+              Sécurité et bon fonctionnement (limitation des tentatives de connexion, prévention des
+              abus, sauvegardes, journaux techniques pour détecter les pannes et les robots) :
               intérêt légitime à protéger le service et ses utilisateurs.
             </li>
           </ul>
@@ -85,6 +91,7 @@ export function PrivacyPage() {
               chaque utilisation).
             </li>
             <li>Sauvegardes chiffrées de la base : 30 jours.</li>
+            <li>Journaux techniques : 7 jours.</li>
           </ul>
           <p>
             Vous pouvez supprimer votre compte à tout moment depuis votre profil. Votre e-mail, votre
@@ -98,7 +105,9 @@ export function PrivacyPage() {
           <h2>Hébergement et prestataires</h2>
           <ul>
             <li>Base de données : Supabase, dans l’Union européenne (Irlande).</li>
-            <li>Serveur de l’application et sauvegardes : Scaleway, en France.</li>
+            <li>
+              Serveur de l’application, journaux techniques et sauvegardes : Scaleway, en France.
+            </li>
             <li>Diffusion de l’application : Google Firebase Hosting.</li>
             <li>
               Photos des parkings : Cloudinary. Ce prestataire peut traiter des données hors de

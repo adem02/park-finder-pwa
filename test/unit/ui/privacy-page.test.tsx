@@ -21,6 +21,13 @@ describe('PrivacyPage', () => {
     expect(contacts[0]?.getAttribute('href')).toBe(`mailto:${PRIVACY_CONTACT}`);
   });
 
+  it('mentionne les journaux techniques et leur durée de conservation', async () => {
+    renderSignedOut(<PrivacyPage />);
+
+    expect(await screen.findByText(/type de navigateur/)).toBeTruthy();
+    expect(screen.getByText('Journaux techniques : 7 jours.')).toBeTruthy();
+  });
+
   it('est accessible depuis la connexion', async () => {
     renderSignedOut(<LoginPage />);
 
